@@ -76,7 +76,7 @@ def load_spectrogram(*args):
         # print(spect.shape)
         return spect, False
     except Exception as err:
-        tf.logging.warn(f"Error while computing features for {song_id}: {err}")
+        #tf.logging.warn(f"Error while computing features for {song_id}: {err}")
         return np.float32(0.0), True
 
 
