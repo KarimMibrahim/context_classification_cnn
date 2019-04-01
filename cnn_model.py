@@ -122,21 +122,21 @@ def compile_model(model, loss = 'binary_crossentropy', optimizer = 'sgd', metric
 # Dataset pipelines
 def get_training_dataset(path):
     return get_dataset(path, shuffle=True,
-                       cache_dir="/tmp/tf_cache/training/")
+                       cache_dir=os.path.join(base_datasets_path,"/tmp/tf_cache/training/"))
 
 
 def get_validation_dataset(path):
     return get_dataset(path , batch_size=32, shuffle=False,
-                       random_crop=False, cache_dir="/tmp/tf_cache/validation/")
+                       random_crop=False, cache_dir=os.path.join(base_datasets_path,"/tmp/tf_cache/validation/"))
 
 
 def get_test_dataset(path):
     return get_dataset(path, batch_size=50, shuffle=False,
-                       infinite_generator=False, cache_dir="/tmp/tf_cache/test/")
+                       infinite_generator=False, cache_dir=os.path.join(base_datasets_path,"/tmp/tf_cache/test/"))
 
 
 def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
-                infinite_generator=True, random_crop=False, cache_dir="/tmp/tf_cache/", num_parallel_calls=32):
+                infinite_generator=True, random_crop=False, cache_dir=os.path.join(base_datasets_path,"/tmp/tf_cache/"), num_parallel_calls=32):
     # build dataset from csv file
     dataset = dp.dataset_from_csv(input_csv)
 
@@ -185,8 +185,8 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
 
     return dataset
 
-def load_test_set_raw(LOADING_PATH = os.path.join(base_datasets_path,"/GroundTruth/",
-                      SPECTROGRAM_PATH = ps.path.join(base_datasets_path,"/MelSpectograms_top20/"):
+def load_test_set_raw(LOADING_PATH = os.path.join(base_datasets_path,"GroundTruth/"),
+                      SPECTROGRAM_PATH = os.path.join(base_datasets_path,"MelSpectograms_top20/")):
     # Loading testset groundtruth
     test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "test_ground_truth.csv"))
     all_ground_truth = pd.read_pickle(os.path.join(LOADING_PATH, "ground_truth_hot_vector.pkl"))
@@ -201,14 +201,12 @@ def load_test_set_raw(LOADING_PATH = os.path.join(base_datasets_path,"/GroundTru
     songs_ID = np.zeros([len(test_ground_truth), 1])
     for idx, filename in enumerate(list(test_ground_truth.song_id)):
         try:
-            spect = np.load(os.path.join('/home/research/Documents/MelSpectograms_top20/', str(filename) + '.npz'))[
-                'feat']
+            spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['feat']
         except:
             continue
         if (spect.shape == (96, 1292, 1)):
             spectrograms[idx] = spect
             songs_ID[idx] = filename
-
     spectrograms = np.asarray(spectrograms)
     return spectrograms,test_classes
 
@@ -249,17 +247,16 @@ def main():
     # Loading datasets
     training_dataset = get_training_dataset(os.path.join(base_datasets_path,"train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(base_datasets_path,"validation_ground_truth.csv"))
-    test_dataset = get_test_dataset(os.path.join(base_datasets_path,"test_ground_truth.csv"))
 
     # TODO: path
     exp_dir = os.path.join(base_datasets_path,"/experiments/")
     experiment_name = os.path.join("Pipeline_CNN", strftime("%Y-%m-%d_%H-%M-%S", localtime()))
 
     fit_config = {
-        "steps_per_epoch": 1000,
-        "epochs": 20,
+        "steps_per_epoch": 10,
+        "epochs": 2,
         "initial_epoch": 0,
-        "validation_steps": 100,
+        "validation_steps": 2,
         "callbacks": [
             TensorBoard(log_dir=os.path.join(exp_dir, experiment_name)),
             ModelCheckpoint(os.path.join(exp_dir, experiment_name, "last_iter.h5"),
@@ -274,9 +271,8 @@ def main():
     # Printing the command to run tensorboard [Just to remember]
     print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
 
-    dp.safe_remove(os.path.join('/tmp/tf_cache/training/', "_0.lockfile"))
-    dp.safe_remove(os.path.join('/tmp/tf_cache/validation/', "_0.lockfile"))
-
+    dp.safe_remove(os.path.join(base_datasets_path,'tmp/tf_cache/training/', "_0.lockfile"))
+    dp.safe_remove(os.path.join(base_datasets_path,'/tmp/tf_cache/validation/', "_0.lockfile"))
     model.fit(training_dataset, validation_data=val_dataset, **fit_config)
 
     spectrograms,test_classes = load_test_set_raw()
