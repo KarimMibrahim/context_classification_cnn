@@ -1,0 +1,3 @@
+Exact match accuracy is: 1.6%
+Area Under the Curve (AUC) is: 0.5073536737398792
+Hamming Loss (ratio of incorrect tags) is: 0.12145
