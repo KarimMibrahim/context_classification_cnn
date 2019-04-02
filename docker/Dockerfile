@@ -1,5 +1,5 @@
 #FROM debian:stretch
-FROM tensorflow/tensorflow:1.12.0-rc2-py3
+FROM tensorflow/tensorflow:1.12.0-gpu-py3 
 
 #FROM nvidia/cuda:9.1-runtime-ubuntu16.04
 
