@@ -1,2 +1,5 @@
+sudo docker build -t my_docker_image docker
+
+
 sudo docker run -ti --memory=10g --rm --name=cnn_model -v [PATH_TO_GROUNDTRUTH]:/my_data/ -v [PATH_TO_SPECTROGRAMS]:/specs/ my_docker_image /bin/bash
 
