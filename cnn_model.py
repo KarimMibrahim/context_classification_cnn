@@ -17,23 +17,29 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, class
     hamming_loss
 from sklearn.model_selection import train_test_split
 
-SOURCE_PATH = "/my_data/"
-SPECTROGRAMS_PATH = "/specs/"
+#SOURCE_PATH = "/srv/workspace/research/balanceddata/"
+#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs"
+SOURCE_PATH = "/home/karim/Documents/BalancedDatasetDeezer/"
+SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
+OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
-INPUT_SHAPE = (1292, 96, 1)
-LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'morning', 'night', 'park', 'party', 'relax', 'running',
-               'sad',
-               'shower', 'sleep', 'summer', 'train', 'training', 'work', 'workout']
+
+INPUT_SHAPE = (646, 96, 1)
+LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
+               'sad', 'sleep', 'summer', 'work', 'workout']
 
 
 def split_dataset(csv_path=os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_single_label.csv"),
                   test_size=0.25, seed=0, save_csv=True,
                   train_save_path=os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"),
-                  test_save_path=os.path.join(SOURCE_PATH, "GroundTruth/test_ground_truth.csv")):
+                  test_save_path=os.path.join(SOURCE_PATH, "GroundTruth/test_ground_truth.csv"),
+                  validation_save_path = os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv")):
     groundtruth = pd.read_csv(csv_path)
-    train, test = train_test_split(groundtruth, test_size=test_size, random_state=seed)
+    train, validation = train_test_split(groundtruth, test_size=0.1, random_state=seed)
+    train, test = train_test_split(train, test_size=test_size, random_state=seed)
     if save_csv:
         pd.DataFrame.to_csv(train, train_save_path, index=False)
+        pd.DataFrame.to_csv(validation, validation_save_path, index=False)
         pd.DataFrame.to_csv(test, test_save_path, index=False)
     return train, test
 
@@ -69,15 +75,15 @@ def load_spectrogram(*args):
     song_id, dummy_path = args
     try:
         # tf.logging.info(f"Load spectrogram for {song_id}")
-        spect = np.load(os.path.join(path, str(song_id) + '.npz'))['feat']
-        if (spect.shape != (1, 1292, 96)):
-            print("Error while computing features for\n\n\n")
+        spect = np.load(os.path.join(path, str(song_id) + '.npz'))['arr_0']
+        if (spect.shape != (1, 646, 96)):
+            print("Error while computing features for" +  str(song_id) + '\n')
             return np.float32(0.0), True
             # spect = spect[:,215:215+646]
         # print(spect.shape)
         return spect, False
     except Exception as err:
-        print("Error while computing features for")
+        print("Error while computing features for " + str(song_id) + '\n')
         return np.float32(0.0), True
 
 
@@ -111,7 +117,7 @@ def get_model():
             Flatten(),
             Dense(256, activation='sigmoid', name="dense_1"),
             Dropout(name="dropout_1", rate=0.3),
-            Dense(20, activation='sigmoid', name="dense_2"),
+            Dense(15, activation='sigmoid', name="dense_2"),
         ]
     )
     return model
@@ -124,21 +130,21 @@ def compile_model(model, loss='binary_crossentropy', optimizer='sgd', metrics=['
 # Dataset pipelines
 def get_training_dataset(path):
     return get_dataset(path, shuffle=True,
-                       cache_dir=os.path.join(SOURCE_PATH, "/tmp/tf_cache/training/"))
+                       cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/training/"))
 
 
 def get_validation_dataset(path):
     return get_dataset(path, batch_size=32, shuffle=False,
-                       random_crop=False, cache_dir=os.path.join(SOURCE_PATH, "/tmp/tf_cache/validation/"))
+                       random_crop=False, cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/validation/"))
 
 
 def get_test_dataset(path):
     return get_dataset(path, batch_size=50, shuffle=False,
-                       infinite_generator=False, cache_dir=os.path.join(SOURCE_PATH, "/tmp/tf_cache/test/"))
+                       infinite_generator=False, cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/test/"))
 
 
 def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
-                infinite_generator=True, random_crop=False, cache_dir=os.path.join(SOURCE_PATH, "/tmp/tf_cache/"),
+                infinite_generator=True, random_crop=False, cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/"),
                 num_parallel_calls=32):
     # build dataset from csv file
     dataset = dp.dataset_from_csv(input_csv)
@@ -200,7 +206,7 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
     test_classes = all_ground_truth.values
     test_classes = test_classes.astype(int)
 
-    spectrograms = np.zeros([len(test_ground_truth), 1292, 96])
+    spectrograms = np.zeros([len(test_ground_truth), 646, 96])
     songs_ID = np.zeros([len(test_ground_truth), 1])
     for idx, filename in enumerate(list(test_ground_truth.song_id)):
         try:
@@ -254,21 +260,21 @@ def save_model(model, path):
 
 def main():
     # splitting datasets
-    # split_dataset()
+    #split_dataset()
 
     # Loading datasets
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
 
     # TODO: path
-    exp_dir = os.path.join(SOURCE_PATH, "experiments/")
-    experiment_name = os.path.join("Pipeline_CNN", strftime("%Y-%m-%d_%H-%M-%S", localtime()))
+    exp_dir = os.path.join(OUTPUT_PATH,"Pipeline_CNN")
+    experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
 
     fit_config = {
-        "steps_per_epoch": 1000,
+        "steps_per_epoch": 1053,
         "epochs": 20,
         "initial_epoch": 0,
-        "validation_steps": 100,
+        "validation_steps": 156,
         "callbacks": [
             TensorBoard(log_dir=os.path.join(exp_dir, experiment_name)),
             ModelCheckpoint(os.path.join(exp_dir, experiment_name, "last_iter.h5"),
@@ -286,8 +292,8 @@ def main():
     model = get_model()
     compile_model(model)
 
-    dp.safe_remove(os.path.join(SOURCE_PATH, '/tmp/tf_cache/training/', "_0.lockfile"))
-    dp.safe_remove(os.path.join(SOURCE_PATH, '/tmp/tf_cache/validation/', "_0.lockfile"))
+    dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/training/', "_0.lockfile"))
+    dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/validation/', "_0.lockfile"))
     model.fit(training_dataset, validation_data=val_dataset, **fit_config)
 
     spectrograms, test_classes = load_test_set_raw()
