@@ -198,8 +198,8 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
                       SPECTROGRAM_PATH=SPECTROGRAMS_PATH):
     # Loading testset groundtruth
     test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "test_ground_truth.csv"))
-    all_ground_truth = pd.read_pickle(os.path.join(LOADING_PATH, "ground_truth_hot_vector.pkl"))
-    all_ground_truth.drop("playlists_count", axis=1, inplace=True);
+    all_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "balanced_ground_truth_hot_vector.csv"))
+    #all_ground_truth.drop("playlists_count", axis=1, inplace=True);
     all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
     all_ground_truth = all_ground_truth.set_index('song_id')
     all_ground_truth = all_ground_truth.loc[test_ground_truth.song_id]
