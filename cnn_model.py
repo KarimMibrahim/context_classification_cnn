@@ -10,21 +10,20 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistributed, Flatten, GRU, Dropout, Dense
 import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
-from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard
+from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
 
 # Machine Learning preprocessing and evaluation
 from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, roc_auc_score, \
     hamming_loss
 from sklearn.model_selection import train_test_split
 
-#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
-#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-#OUTPUT_PATH = "/srv/workspace/research/experiments_results"
-
 SOURCE_PATH = "/home/karim/Documents/research/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
+SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+OUTPUT_PATH = "/srv/workspace/research/experiments_results"
 
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
@@ -160,6 +159,11 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     # filter out errors
     dataset = dataset.filter(lambda sample: tf.logical_not(sample["error"]))
 
+    # map dynamic compression
+    C = 10000
+    dataset = dataset.map(lambda sample: dict(sample, features=tf.log(1 + C * sample["features"])),
+                          num_parallel_calls=num_parallel_calls)
+
     # Apply permute dimensions
     dataset = dataset.map(lambda sample: dict(sample, features=tf.transpose(sample["features"], perm=[1, 2, 0])),
                           num_parallel_calls=num_parallel_calls)
@@ -171,9 +175,9 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     dataset = dataset.map(lambda sample: dict(sample,
                                               features=dp.set_tensor_shape(sample["features"], input_shape)))
 
-    if cache_dir:
-        os.makedirs(cache_dir, exist_ok=True)
-        dataset = dataset.cache(cache_dir)
+    #if cache_dir:
+    #    os.makedirs(cache_dir, exist_ok=True)
+    #    dataset = dataset.cache(cache_dir)
 
     # one hot encoding of labels
     dataset = dataset.map(lambda sample: dict(sample, binary_label=tf_multilabel_binarize(
@@ -284,7 +288,8 @@ def main():
             ModelCheckpoint(os.path.join(exp_dir, experiment_name, "best_eval.h5"),
                             save_best_only=True,
                             monitor="val_loss",
-                            save_weights_only=False)
+                            save_weights_only=False),
+            EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='min', restore_best_weights=True)
         ]
     }
 
