@@ -212,7 +212,7 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
     songs_ID = np.zeros([len(test_ground_truth), 1])
     for idx, filename in enumerate(list(test_ground_truth.song_id)):
         try:
-            spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['feat']
+            spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['arr_0']
         except:
             continue
         if (spect.shape == (1, 646, 96)):

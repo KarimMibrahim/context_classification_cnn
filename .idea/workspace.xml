@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -11,23 +12,12 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="105">
-              <caret line="23" column="73" lean-forward="true" selection-start-line="23" selection-start-column="73" selection-end-line="23" selection-end-column="73" />
-              <folding>
-                <element signature="e#1093#1240#0" />
-                <element signature="e#1711#2159#0" />
-                <element signature="e#2354#2833#0" />
-                <element signature="e#5538#5600#0" />
-                <element signature="e#5659#5783#0" />
-                <element signature="e#5824#5985#0" />
-                <element signature="e#6020#6182#0" />
-                <element signature="e#9556#11039#0" />
-                <element signature="e#11075#11356#0" />
-              </folding>
+            <state relative-caret-position="-811">
+              <caret line="219" column="36" lean-forward="true" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
             </state>
           </provider>
         </entry>
@@ -39,6 +29,7 @@
       <find>experiment</find>
       <find>cach</find>
       <find>Ground</find>
+      <find>arr_</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -74,7 +65,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -86,6 +76,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -174,26 +165,21 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1561023087811</updated>
-      <workItem from="1561023089145" duration="19024000" />
+      <workItem from="1561023089145" duration="19469000" />
+      <workItem from="1561371280062" duration="51000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="19024000" />
+    <option name="totallyTimeSpent" value="19520000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Favorites" side_tool="true" />
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2497332" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.2524013" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Docker" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Database Changes" />
-      <window_info anchor="bottom" id="Version Control" weight="0.32925585" />
-      <window_info active="true" anchor="bottom" id="Python Console" visible="true" weight="0.32925585" />
-      <window_info anchor="bottom" id="Terminal" weight="0.32925585" />
-      <window_info anchor="bottom" id="Event Log" side_tool="true" weight="0.32925585" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.32925585" />
@@ -201,13 +187,19 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="right" id="Database" />
-      <window_info anchor="right" id="R Packages" />
-      <window_info anchor="right" id="SciView" />
-      <window_info anchor="right" id="R Graphics" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32925585" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" weight="0.32925585" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.32925585" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.32110092" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="SciView" order="3" />
+      <window_info anchor="right" id="R Graphics" order="4" />
+      <window_info anchor="right" id="R Packages" order="5" />
+      <window_info anchor="right" id="Database" order="6" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -232,21 +224,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.5/site-packages/pandas/io/parsers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="701" selection-start-line="701" selection-end-line="701" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="23" column="73" lean-forward="true" selection-start-line="23" selection-start-column="73" selection-end-line="23" selection-end-column="73" />
-          <folding>
-            <element signature="e#1093#1240#0" />
-            <element signature="e#1711#2159#0" />
-            <element signature="e#2354#2833#0" />
-            <element signature="e#5538#5600#0" />
-            <element signature="e#5659#5783#0" />
-            <element signature="e#5824#5985#0" />
-            <element signature="e#6020#6182#0" />
-            <element signature="e#9556#11039#0" />
-            <element signature="e#11075#11356#0" />
-          </folding>
+        <state relative-caret-position="-811">
+          <caret line="219" column="36" lean-forward="true" selection-start-line="219" selection-start-column="36" selection-end-line="219" selection-end-column="36" />
         </state>
       </provider>
     </entry>
