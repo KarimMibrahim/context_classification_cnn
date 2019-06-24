@@ -17,9 +17,11 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, class
     hamming_loss
 from sklearn.model_selection import train_test_split
 
-#SOURCE_PATH = "/srv/workspace/research/balanceddata/"
-#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs"
-SOURCE_PATH = "/home/karim/Documents/BalancedDatasetDeezer/"
+#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+#OUTPUT_PATH = "/srv/workspace/research/experiments_results"
+
+SOURCE_PATH = "/home/karim/Documents/research/context_classification_cnn/   "
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
@@ -213,7 +215,7 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
             spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['feat']
         except:
             continue
-        if (spect.shape == (1, 1292, 96)):
+        if (spect.shape == (1, 646, 96)):
             spectrograms[idx] = spect
             songs_ID[idx] = filename
     spectrograms = np.expand_dims(spectrograms, axis=3)
