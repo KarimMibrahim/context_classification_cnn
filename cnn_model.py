@@ -21,7 +21,7 @@ from sklearn.model_selection import train_test_split
 #SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 #OUTPUT_PATH = "/srv/workspace/research/experiments_results"
 
-SOURCE_PATH = "/home/karim/Documents/research/context_classification_cnn/   "
+SOURCE_PATH = "/home/karim/Documents/research/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
