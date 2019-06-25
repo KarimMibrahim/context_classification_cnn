@@ -83,13 +83,13 @@ def load_spectrogram(*args):
         # tf.logging.info(f"Load spectrogram for {song_id}")
         spect = np.load(os.path.join(path, str(song_id) + '.npz'))['arr_0']
         if (spect.shape != (1, 646, 96)):
-            print("\n Error while computing features for" +  str(song_id) + '\n')
+            #print("\n Error while computing features for" +  str(song_id) + '\n')
             return np.float32(0.0), True
             # spect = spect[:,215:215+646]
         # print(spect.shape)
         return spect, False
     except Exception as err:
-        print("\n Error while computing features for " + str(song_id) + '\n')
+        #print("\n Error while computing features for " + str(song_id) + '\n')
         return np.float32(0.0), True
 
 
@@ -327,8 +327,7 @@ def main():
     model = get_model()
     compile_model(model)
 
-    dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/training/', "_0.lockfile"))
-    dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/validation/', "_0.lockfile"))
+    dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
 
     spectrograms, test_classes = load_test_set_raw()
