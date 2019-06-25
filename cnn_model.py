@@ -12,6 +12,10 @@ import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
 
+
+from dzr_ml_tf.device import limit_memory_usage
+limit_memory_usage(0.3)
+
 # Machine Learning preprocessing and evaluation
 from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, roc_auc_score, \
     hamming_loss
@@ -78,13 +82,13 @@ def load_spectrogram(*args):
         # tf.logging.info(f"Load spectrogram for {song_id}")
         spect = np.load(os.path.join(path, str(song_id) + '.npz'))['arr_0']
         if (spect.shape != (1, 646, 96)):
-            print("Error while computing features for" +  str(song_id) + '\n')
+            print("\n Error while computing features for" +  str(song_id) + '\n')
             return np.float32(0.0), True
             # spect = spect[:,215:215+646]
         # print(spect.shape)
         return spect, False
     except Exception as err:
-        print("Error while computing features for " + str(song_id) + '\n')
+        print("\n Error while computing features for " + str(song_id) + '\n')
         return np.float32(0.0), True
 
 
@@ -278,7 +282,7 @@ def main():
 
     fit_config = {
         "steps_per_epoch": 1053,
-        "epochs": 20,
+        "epochs": 100,
         "initial_epoch": 0,
         "validation_steps": 156,
         "callbacks": [
@@ -289,7 +293,7 @@ def main():
                             save_best_only=True,
                             monitor="val_loss",
                             save_weights_only=False),
-            EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='min', restore_best_weights=True)
+            EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=1, mode='min')
         ]
     }
 
