@@ -4,7 +4,6 @@ import numpy as np
 import pandas as pd
 from time import strftime, localtime
 import matplotlib.pyplot as plt
-plt.rcParams.update({'font.size':22})
 
 # Deep Learning
 import tensorflow as tf
@@ -14,13 +13,16 @@ import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
 
-from dzr_ml_tf.device import limit_memory_usage
-limit_memory_usage(0.3)
-
 # Machine Learning preprocessing and evaluation
 from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, roc_auc_score, \
     hamming_loss
 from sklearn.model_selection import train_test_split
+from dzr_ml_tf.device import limit_memory_usage
+
+limit_memory_usage(0.3)
+plt.rcParams.update({'font.size':22})
+#os.environ["CUDA_VISIBLE_DEVICES"]="2"
+
 
 SOURCE_PATH = "/home/karim/Documents/research/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
