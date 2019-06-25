@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from time import strftime, localtime
 import matplotlib.pyplot as plt
+plt.rcParams.update({'font.size':22})
 
 # Deep Learning
 import tensorflow as tf
@@ -12,7 +13,6 @@ from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistri
 import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
-
 
 from dzr_ml_tf.device import limit_memory_usage
 limit_memory_usage(0.3)
@@ -29,6 +29,7 @@ OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/experiments_results"
+
 
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
@@ -317,15 +318,16 @@ def main():
                             save_best_only=True,
                             monitor="val_loss",
                             save_weights_only=False),
-            EarlyStopping(monitor='val_loss', min_delta=0, patience=5, verbose=1, mode='min')
+            EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='min')
         ]
     }
 
     # Printing the command to run tensorboard [Just to remember]
     print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
 
+    optimization = tf.keras.optimizers.Adadelta()
     model = get_model()
-    compile_model(model)
+    compile_model(model,optimizer= optimization)
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
