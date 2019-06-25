@@ -30,7 +30,7 @@ OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
 SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-OUTPUT_PATH = "/srv/workspace/research/experiments_results"
+OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
 INPUT_SHAPE = (646, 96, 1)
