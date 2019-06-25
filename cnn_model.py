@@ -327,9 +327,9 @@ def main():
     # Printing the command to run tensorboard [Just to remember]
     print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
 
-    optimization = tf.keras.optimizers.Adadelta()
+    #optimization = tf.keras.optimizers.Adadelta()
     model = get_model()
-    compile_model(model,optimizer= optimization)
+    compile_model(model)
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
