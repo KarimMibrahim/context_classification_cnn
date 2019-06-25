@@ -3,6 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from time import strftime, localtime
+import matplotlib.pyplot as plt
 
 # Deep Learning
 import tensorflow as tf
@@ -267,6 +268,29 @@ def save_model(model, path):
     model.save_weights(os.join.path(path, "model.h5"))
     print("Saved model to disk")
 
+def plot_loss_acuracy(history, path):
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(10, 10))
+    plt.plot(history.history['acc'])
+    plt.plot(history.history['val_acc'])
+    plt.title('Model accuracy')
+    plt.ylabel('Accuracy')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.savefig(os.path.join(path , "model_accuracy.png"))
+    plt.savefig(os.path.join(path,"model_accuracy.pdf"), format='pdf')
+    #plt.savefig(os.path.join(path,label + "_model_accuracy.eps"), format='eps', dpi=900)
+    #Plot training & validation loss values
+    plt.figure(figsize=(10, 10))
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Train', 'Test'], loc='upper left')
+    plt.savefig(os.path.join(path, "model_loss.png"))
+    plt.savefig(os.path.join(path, "model_loss.pdf"), format='pdf')
+    #plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
 
 def main():
     # splitting datasets
@@ -305,13 +329,13 @@ def main():
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/training/', "_0.lockfile"))
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/validation/', "_0.lockfile"))
-    model.fit(training_dataset, validation_data=val_dataset, **fit_config)
+    history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
 
     spectrograms, test_classes = load_test_set_raw()
     accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,
                                                       saving_path=os.path.join(exp_dir, experiment_name))
     # save_model(model,"path/path/path")
-
+    plot_loss_acuracy(history, os.path.join(exp_dir, experiment_name))
 
 if __name__ == "__main__":
     main()
