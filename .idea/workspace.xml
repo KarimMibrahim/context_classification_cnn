@@ -15,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="214">
-              <caret line="313" column="31" selection-start-line="313" selection-start-column="31" selection-end-line="313" selection-end-column="31" />
+            <state relative-caret-position="426">
+              <caret line="261" column="57" lean-forward="true" selection-start-line="261" selection-start-column="57" selection-end-line="261" selection-end-column="57" />
               <folding>
                 <element signature="e#18#27#0" expanded="true" />
                 <element signature="e#1339#1486#0" />
@@ -28,9 +28,9 @@
                 <element signature="e#6274#6436#0" />
                 <element signature="e#6678#8657#0" />
                 <element signature="e#8801#9948#0" />
-                <element signature="e#10023#11506#0" />
                 <element signature="e#11542#11823#0" />
                 <element signature="e#11867#12869#0" />
+                <element signature="e#12941#15069#0" />
               </folding>
             </state>
           </provider>
@@ -191,12 +191,12 @@
       <option name="presentableId" value="Default" />
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
-      <workItem from="1561371280062" duration="17327000" />
+      <workItem from="1561371280062" duration="18707000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="36796000" />
+    <option name="totallyTimeSpent" value="38176000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
@@ -259,8 +259,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="214">
-          <caret line="313" column="31" selection-start-line="313" selection-start-column="31" selection-end-line="313" selection-end-column="31" />
+        <state relative-caret-position="426">
+          <caret line="261" column="57" lean-forward="true" selection-start-line="261" selection-start-column="57" selection-end-line="261" selection-end-column="57" />
           <folding>
             <element signature="e#18#27#0" expanded="true" />
             <element signature="e#1339#1486#0" />
@@ -272,9 +272,9 @@
             <element signature="e#6274#6436#0" />
             <element signature="e#6678#8657#0" />
             <element signature="e#8801#9948#0" />
-            <element signature="e#10023#11506#0" />
             <element signature="e#11542#11823#0" />
             <element signature="e#11867#12869#0" />
+            <element signature="e#12941#15069#0" />
           </folding>
         </state>
       </provider>
