@@ -251,9 +251,9 @@ def evaluate_model(model, spectrograms, test_classes, saving_path):
     auc_roc = roc_auc_score(test_classes, test_pred_prob)
     print("Macro Area Under the Curve (AUC) is: " + str(auc_roc))
     auc_roc_micro = roc_auc_score(test_classes, test_pred_prob, average = "micro")
-    print("Micro Area Under the Curve (AUC) is: " + str(auc_roc))
+    print("Micro Area Under the Curve (AUC) is: " + str(auc_roc_micro))
     auc_roc_weighted = roc_auc_score(test_classes, test_pred_prob, average = "weighted")
-    print("Weighted Area Under the Curve (AUC) is: " + str(auc_roc))
+    print("Weighted Area Under the Curve (AUC) is: " + str(auc_roc_weighted))
     # Hamming loss is the fraction of labels that are incorrectly predicted.
     hamming_error = hamming_loss(test_classes, test_pred)
     print("Hamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
@@ -343,6 +343,8 @@ def main():
     with open(os.path.join(exp_dir, experiment_name, "model_summary.txt"), 'w+') as fh:
         model.summary(print_fn=lambda x: fh.write(x + '\n'))
 
+    # Load model with best validation results and apply on testset 
+    model.load_weights(os.path.join(exp_dir, experiment_name, "best_eval.h5"))
     spectrograms, test_classes = load_test_set_raw()
     accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,
                                                       saving_path=os.path.join(exp_dir, experiment_name))

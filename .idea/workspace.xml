@@ -15,8 +15,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="426">
-              <caret line="261" column="57" lean-forward="true" selection-start-line="261" selection-start-column="57" selection-end-line="261" selection-end-column="57" />
+            <state relative-caret-position="359">
+              <caret line="345" column="67" selection-start-line="345" selection-start-column="67" selection-end-line="345" selection-end-column="67" />
               <folding>
                 <element signature="e#18#27#0" expanded="true" />
                 <element signature="e#1339#1486#0" />
@@ -30,7 +30,6 @@
                 <element signature="e#8801#9948#0" />
                 <element signature="e#11542#11823#0" />
                 <element signature="e#11867#12869#0" />
-                <element signature="e#12941#15069#0" />
               </folding>
             </state>
           </provider>
@@ -191,12 +190,12 @@
       <option name="presentableId" value="Default" />
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
-      <workItem from="1561371280062" duration="18707000" />
+      <workItem from="1561371280062" duration="20725000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="38176000" />
+    <option name="totallyTimeSpent" value="40194000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
@@ -207,7 +206,7 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32925585" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.32925585" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -217,7 +216,7 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" weight="0.32925585" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32925585" />
-      <window_info anchor="bottom" id="Python Console" order="12" weight="0.32110092" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.32110092" />
       <window_info anchor="right" x="0" y="0" width="430" height="884" id="Documentation" side_tool="true" weight="0.25773746" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
@@ -259,8 +258,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="426">
-          <caret line="261" column="57" lean-forward="true" selection-start-line="261" selection-start-column="57" selection-end-line="261" selection-end-column="57" />
+        <state relative-caret-position="359">
+          <caret line="345" column="67" selection-start-line="345" selection-start-column="67" selection-end-line="345" selection-end-column="67" />
           <folding>
             <element signature="e#18#27#0" expanded="true" />
             <element signature="e#1339#1486#0" />
@@ -274,7 +273,6 @@
             <element signature="e#8801#9948#0" />
             <element signature="e#11542#11823#0" />
             <element signature="e#11867#12869#0" />
-            <element signature="e#12941#15069#0" />
           </folding>
         </state>
       </provider>
