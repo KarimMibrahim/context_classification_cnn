@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # Deep Learning
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistributed, Flatten, GRU, Dropout, Dense
+from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistributed, Flatten, GRU, Dropout, Dense, BatchNormalization
 import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
@@ -102,7 +102,7 @@ def get_model():
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
 
-            # BatchNormalization()
+            BatchNormalization(),
 
             Conv2D(activation="relu", filters=32, kernel_size=[3, 3], name="conv_1", padding="same"),
             MaxPooling2D(name="max_pool_1", padding="valid", pool_size=[2, 2]),
@@ -308,10 +308,10 @@ def main():
     experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
 
     fit_config = {
-        "steps_per_epoch": 1,
-        "epochs": 1,
+        "steps_per_epoch": 1053,
+        "epochs": 100,
         "initial_epoch": 0,
-        "validation_steps": 1,
+        "validation_steps": 156,
         "callbacks": [
             TensorBoard(log_dir=os.path.join(exp_dir, experiment_name)),
             ModelCheckpoint(os.path.join(exp_dir, experiment_name, "last_iter.h5"),
