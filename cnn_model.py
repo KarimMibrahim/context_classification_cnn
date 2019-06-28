@@ -308,10 +308,10 @@ def main():
     experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
 
     fit_config = {
-        "steps_per_epoch": 1053,
-        "epochs": 100,
+        "steps_per_epoch": 1,
+        "epochs": 1,
         "initial_epoch": 0,
-        "validation_steps": 156,
+        "validation_steps": 1,
         "callbacks": [
             TensorBoard(log_dir=os.path.join(exp_dir, experiment_name)),
             ModelCheckpoint(os.path.join(exp_dir, experiment_name, "last_iter.h5"),
@@ -333,6 +333,10 @@ def main():
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
+
+    # save model architecture to disk
+    with open(os.path.join(exp_dir, experiment_name, "model_summary.txt"), 'w+') as fh:
+        model.summary(print_fn=lambda x: fh.write(x + '\n'))
 
     spectrograms, test_classes = load_test_set_raw()
     accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,
