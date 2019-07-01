@@ -24,7 +24,7 @@ plt.rcParams.update({'font.size':22})
 #os.environ["CUDA_VISIBLE_DEVICES"]="2"
 
 
-SOURCE_PATH = "/home/karim/Documents/research/context_classification_cnn/"
+SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
@@ -101,6 +101,7 @@ def get_model():
     # Define model architecture
 
     # C1_freq
+    """
     model = Sequential(
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
@@ -116,6 +117,7 @@ def get_model():
             Dense(15, activation='sigmoid', name="dense_2"),
         ]
     )
+    """
 
     # C1_time
     """
@@ -136,9 +138,8 @@ def get_model():
     )
     """
 
-
-    # c4_model
     """
+    # C4_model
     model = Sequential(
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
@@ -171,6 +172,27 @@ def get_model():
         ]
     )
     """
+
+    # C2_model
+    model = Sequential(
+        [
+            InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
+
+            BatchNormalization(),
+
+            Conv2D(activation="relu", filters=32, kernel_size=[3, 3], name="conv_1", padding="same"),
+            MaxPooling2D(name="max_pool_1", padding="valid", pool_size=[2, 2]),
+
+            Conv2D(activation="relu", filters=64, kernel_size=[3, 3], name="conv_2", padding="same", use_bias=True),
+            MaxPooling2D(name="max_pool_2", padding="valid", pool_size=[2, 2]),
+
+            Flatten(),
+            Dense(256, activation='sigmoid', name="dense_1"),
+            Dropout(name="dropout_1", rate=0.3),
+            Dense(15, activation='sigmoid', name="dense_2"),
+        ]
+    )
+
     return model
 
 
@@ -275,6 +297,33 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
     spectrograms = np.expand_dims(spectrograms, axis=3)
     return spectrograms, test_classes
 
+def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
+                      SPECTROGRAM_PATH="/home/karim/Documents/MelSpectograms_top20/"):
+    # Loading testset groundtruth
+    test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "old_test_ground_truth[unbalanced].csv"))
+    all_ground_truth = pd.read_pickle(os.path.join(LOADING_PATH, "old_ground_truth_hot_vector[unblanced].pkl"))
+    all_ground_truth.drop(['playlists_count','train', 'shower', 'park', 'morning', 'training'], axis=1, inplace=True);
+    all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
+    test_ground_truth = test_ground_truth[test_ground_truth.song_id.isin(all_ground_truth.song_id)]
+    all_ground_truth = all_ground_truth.set_index('song_id')
+    all_ground_truth = all_ground_truth.loc[test_ground_truth.song_id]
+    test_classes = all_ground_truth.values
+    test_classes = test_classes.astype(int)
+
+    spectrograms = np.zeros([len(test_ground_truth), 646, 96])
+    songs_ID = np.zeros([len(test_ground_truth), 1])
+    for idx, filename in enumerate(list(test_ground_truth.song_id)):
+        try:
+            spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['feat']
+        except:
+            continue
+        if (spect.shape == (1, 1292, 96)):
+            spect = spect [:,323 : 323+ 646,:]
+            spectrograms[idx] = spect
+            songs_ID[idx] = filename
+    spectrograms = np.expand_dims(spectrograms, axis=3)
+    return spectrograms, test_classes
+
 
 def evaluate_model(model, spectrograms, test_classes, saving_path):
     """
@@ -299,7 +348,7 @@ def evaluate_model(model, spectrograms, test_classes, saving_path):
     # Hamming loss is the fraction of labels that are incorrectly predicted.
     hamming_error = hamming_loss(test_classes, test_pred)
     print("Hamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
-    with open(os.path.join(saving_path, "evaluation_results.txt"), "w") as f:
+    with open(saving_path, "w") as f:
         f.write("Exact match accuracy is: " + str(accuracy) + "%\n" + "Area Under the Curve (AUC) is: " + str(auc_roc)
                 + "\nMicro AUC is:" + str(auc_roc_micro) + "\nWeighted AUC is:" + str(auc_roc_weighted)
                 +  "\nHamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
@@ -389,7 +438,14 @@ def main():
     model.load_weights(os.path.join(exp_dir, experiment_name, "best_eval.h5"))
     spectrograms, test_classes = load_test_set_raw()
     accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,
-                                                      saving_path=os.path.join(exp_dir, experiment_name))
+                                                      saving_path=os.path.join(exp_dir, experiment_name, "evaluation_results.txt" ))
+
+    # Evaluate on old dataset
+    old_specs, old_test_classes = load_old_test_set_raw()
+    print("\nEvaluating on old testset:")
+    accuracy, auc_roc, hamming_error = evaluate_model(model, old_specs, old_test_classes,
+                                                      saving_path=os.path.join(exp_dir, experiment_name, "old_evaluation_results.txt""))
+
     # save_model(model,"path/path/path")
     plot_loss_acuracy(history, os.path.join(exp_dir, experiment_name))
 
