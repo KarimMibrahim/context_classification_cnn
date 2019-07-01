@@ -33,6 +33,7 @@ SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
+EXPERIMENTNAME = "C1_time"
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
@@ -98,6 +99,26 @@ def load_spectrogram(*args):
 
 def get_model():
     # Define model architecture
+
+    #   C1_time
+    model = Sequential(
+        [
+            InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
+
+            BatchNormalization(),
+
+            Conv2D(activation="relu", filters=32, kernel_size=[1, 60], name="conv_1", padding="same"),
+            MaxPooling2D(name="max_pool_1", padding="valid", pool_size=[96, 1]),
+
+            Flatten(),
+            Dense(200, activation='sigmoid', name="dense_1"),
+            Dropout(name="dropout_1", rate=0.5),
+            Dense(15, activation='sigmoid', name="dense_2"),
+        ]
+    )
+
+    # c4_model
+    """
     model = Sequential(
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
@@ -128,6 +149,7 @@ def get_model():
             Dropout(name="dropout_1", rate=0.3),
             Dense(15, activation='sigmoid', name="dense_2"),
         ]
+    """
     )
     return model
 
@@ -309,7 +331,7 @@ def main():
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
 
     # TODO: path
-    exp_dir = os.path.join(OUTPUT_PATH,"Pipeline_CNN")
+    exp_dir = os.path.join(OUTPUT_PATH,EXPERIMENTNAME)
     experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
 
     fit_config = {
@@ -343,7 +365,7 @@ def main():
     with open(os.path.join(exp_dir, experiment_name, "model_summary.txt"), 'w+') as fh:
         model.summary(print_fn=lambda x: fh.write(x + '\n'))
 
-    # Load model with best validation results and apply on testset 
+    # Load model with best validation results and apply on testset
     model.load_weights(os.path.join(exp_dir, experiment_name, "best_eval.h5"))
     spectrograms, test_classes = load_test_set_raw()
     accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,
