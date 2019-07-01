@@ -440,14 +440,14 @@ def main():
     accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,saving_path= os.path.join(exp_dir, experiment_name),
                                                       evaluation_file_path=os.path.join(exp_dir, experiment_name, "evaluation_results.txt" ))
 
-    # Evaluate on old dataset
-    old_specs, old_test_classes = load_old_test_set_raw()
-    print("\nEvaluating on old testset:")
-    accuracy, auc_roc, hamming_error = evaluate_model(model, old_specs, old_test_classes,saving_path= os.path.join(exp_dir, experiment_name),
-                                                      evaluation_file_path=os.path.join(exp_dir, experiment_name, "old_evaluation_results.txt"))
-
     # save_model(model,"path/path/path")
     plot_loss_acuracy(history, os.path.join(exp_dir, experiment_name))
+
+    # Evaluate on old dataset
+    #old_specs, old_test_classes = load_old_test_set_raw()
+    #print("\nEvaluating on old testset:")
+    #accuracy, auc_roc, hamming_error = evaluate_model(model, old_specs, old_test_classes,saving_path= os.path.join(exp_dir, experiment_name),
+    #                                                 evaluation_file_path=os.path.join(exp_dir, experiment_name, "old_evaluation_results.txt"))
 
 if __name__ == "__main__":
     main()
