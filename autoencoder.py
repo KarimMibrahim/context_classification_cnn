@@ -9,7 +9,7 @@ from tensorflow.keras.models import Model
 import numpy as np
 
 
-INPUT_SHAPE = (646, 96, 1)
+INPUT_SHAPE = (640, 96, 1)
 EXPERIMENTNAME = "Autoencoder"
 
 # this is the size of our encoded representations
@@ -201,7 +201,6 @@ autoencoder.fit(x_train, x_train,
 
 
 input_img = Input(shape=INPUT_SHAPE)  # adapt this if using `channels_first` image data format
-
 x = Conv2D(32, (3, 3), activation='relu', padding='same')(input_img)
 x = MaxPooling2D((2, 2), padding='valid')(x)
 x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
@@ -215,15 +214,17 @@ encoded = MaxPooling2D((2, 2), padding='valid')(x)
 
 # at this point the representation is (20, 3 , 8) i.e. 480-dimensional
 
+#x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
+x = UpSampling2D((2, 2))(x)
 x = Conv2D(8, (3, 3), activation='relu', padding='same')(encoded)
 x = UpSampling2D((2, 2))(x)
-x = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded)
+x = Conv2D(16, (3, 3), activation='relu', padding='same')(x)
 x = UpSampling2D((2, 2))(x)
 x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
 x = UpSampling2D((2, 2))(x)
-x = Conv2D(32, (3, 3), activation='relu')(x)
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
 x = UpSampling2D((2, 2))(x)
-x = Conv2D(32, (3, 3), activation='relu')(x)
+x = Conv2D(32, (3, 3), activation='relu', padding='same')(x)
 x = UpSampling2D((2, 2))(x)
 decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
 
@@ -255,12 +256,12 @@ print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.pa
 #model = get_model()
 #compile_model(model)
 
-history = autoencoder.fit(training_dataset, **fit_config)
+spectrograms, _ = load_test_set_raw()
+spectrograms = spectrograms[:,:640,:,:]
 
+history = autoencoder.fit(spectrograms,spectrograms, **fit_config)
 
-
-autoencoder.fit(x_train, x_train,
+autoencoder.fit(spectrograms, spectrograms,
                 epochs=50,
                 batch_size=128,
-                shuffle=True,
-                validation_data=(x_test, x_test))
+                shuffle=True)
