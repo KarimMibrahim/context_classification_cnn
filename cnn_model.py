@@ -100,7 +100,25 @@ def load_spectrogram(*args):
 def get_model():
     # Define model architecture
 
-    #   C1_time
+    # C1_freq
+    model = Sequential(
+        [
+            InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
+
+            BatchNormalization(),
+
+            Conv2D(activation="relu", filters=32, kernel_size=[32, 1], name="conv_1", padding="same"),
+            MaxPooling2D(name="max_pool_1", padding="valid", pool_size=[1, 80]),
+
+            Flatten(),
+            Dense(200, activation='sigmoid', name="dense_1"),
+            Dropout(name="dropout_1", rate=0.5),
+            Dense(15, activation='sigmoid', name="dense_2"),
+        ]
+    )
+
+    # C1_time
+    """
     model = Sequential(
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
@@ -116,6 +134,8 @@ def get_model():
             Dense(15, activation='sigmoid', name="dense_2"),
         ]
     )
+    """
+
 
     # c4_model
     """
@@ -149,8 +169,8 @@ def get_model():
             Dropout(name="dropout_1", rate=0.3),
             Dense(15, activation='sigmoid', name="dense_2"),
         ]
-    """
     )
+    """
     return model
 
 
