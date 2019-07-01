@@ -138,8 +138,8 @@ def get_model():
     )
     """
 
-    """
     # C4_model
+    """
     model = Sequential(
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
@@ -325,7 +325,7 @@ def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/")
     return spectrograms, test_classes
 
 
-def evaluate_model(model, spectrograms, test_classes, saving_path):
+def evaluate_model(model, spectrograms, test_classes, saving_path, evaluation_file_path):
     """
     Evaluates a given model using accuracy, area under curve and hamming loss
     :param model: model to be evaluated
@@ -348,7 +348,7 @@ def evaluate_model(model, spectrograms, test_classes, saving_path):
     # Hamming loss is the fraction of labels that are incorrectly predicted.
     hamming_error = hamming_loss(test_classes, test_pred)
     print("Hamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
-    with open(saving_path, "w") as f:
+    with open(evaluation_file_path, "w") as f:
         f.write("Exact match accuracy is: " + str(accuracy) + "%\n" + "Area Under the Curve (AUC) is: " + str(auc_roc)
                 + "\nMicro AUC is:" + str(auc_roc_micro) + "\nWeighted AUC is:" + str(auc_roc_weighted)
                 +  "\nHamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
@@ -437,14 +437,14 @@ def main():
     # Load model with best validation results and apply on testset
     model.load_weights(os.path.join(exp_dir, experiment_name, "best_eval.h5"))
     spectrograms, test_classes = load_test_set_raw()
-    accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,
-                                                      saving_path=os.path.join(exp_dir, experiment_name, "evaluation_results.txt" ))
+    accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,saving_path= os.path.join(exp_dir, experiment_name),
+                                                      evaluation_file_path=os.path.join(exp_dir, experiment_name, "evaluation_results.txt" ))
 
     # Evaluate on old dataset
     old_specs, old_test_classes = load_old_test_set_raw()
     print("\nEvaluating on old testset:")
-    accuracy, auc_roc, hamming_error = evaluate_model(model, old_specs, old_test_classes,
-                                                      saving_path=os.path.join(exp_dir, experiment_name, "old_evaluation_results.txt""))
+    accuracy, auc_roc, hamming_error = evaluate_model(model, old_specs, old_test_classes,saving_path= os.path.join(exp_dir, experiment_name),
+                                                      evaluation_file_path=os.path.join(exp_dir, experiment_name, "old_evaluation_results.txt"))
 
     # save_model(model,"path/path/path")
     plot_loss_acuracy(history, os.path.join(exp_dir, experiment_name))

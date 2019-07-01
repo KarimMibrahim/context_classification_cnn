@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/autoencoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/autoencoder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,18 +16,13 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="494">
-              <caret line="441" lean-forward="true" selection-start-line="441" selection-end-line="441" />
+            <state relative-caret-position="389">
+              <caret line="446" column="142" selection-start-line="446" selection-start-column="142" selection-end-line="446" selection-end-column="142" />
               <folding>
-                <element signature="e#18#27#0" expanded="true" />
                 <element signature="e#1339#1486#0" />
                 <element signature="e#1957#2405#0" />
-                <element signature="e#2600#3079#0" />
-                <element signature="e#3115#4063#0" />
-                <element signature="e#4199#7722#0" />
                 <element signature="e#4246#4788#1" />
                 <element signature="e#4798#5344#1" />
-                <element signature="e#5364#6950#1" />
                 <element signature="e#7007#7699#0" />
                 <element signature="e#5913#6037#0" />
                 <element signature="e#6078#6239#0" />
@@ -34,7 +30,6 @@
                 <element signature="e#6678#8657#0" />
                 <element signature="e#8801#9948#0" />
                 <element signature="e#11340#12487#0" />
-                <element signature="e#11293#13209#0" />
                 <element signature="e#11542#11823#0" />
                 <element signature="e#11867#12869#0" />
               </folding>
@@ -45,10 +40,15 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/autoencoder.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="464">
-              <caret line="75" column="37" selection-start-line="75" selection-start-column="37" selection-end-line="75" selection-end-column="37" />
+            <state relative-caret-position="-351">
+              <caret line="65" selection-start-line="65" selection-end-line="65" />
               <folding>
                 <element signature="e#0#48#0" expanded="true" />
+                <element signature="e#770#1249#0" />
+                <element signature="e#1285#2233#0" />
+                <element signature="e#2294#2418#0" />
+                <element signature="e#665#2304#1" />
+                <element signature="e#2367#3006#1" />
               </folding>
             </state>
           </provider>
@@ -73,6 +73,7 @@
       <find>label</find>
       <find>inputlayer</find>
       <find>Pipeline</find>
+      <find>encoded_imgs</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -241,12 +242,12 @@
       <option name="presentableId" value="Default" />
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
-      <workItem from="1561371280062" duration="34053000" />
+      <workItem from="1561371280062" duration="40944000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="53522000" />
+    <option name="totallyTimeSpent" value="60413000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
@@ -309,28 +310,28 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autoencoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="464">
-          <caret line="75" column="37" selection-start-line="75" selection-start-column="37" selection-end-line="75" selection-end-column="37" />
+        <state relative-caret-position="-351">
+          <caret line="65" selection-start-line="65" selection-end-line="65" />
           <folding>
             <element signature="e#0#48#0" expanded="true" />
+            <element signature="e#770#1249#0" />
+            <element signature="e#1285#2233#0" />
+            <element signature="e#2294#2418#0" />
+            <element signature="e#665#2304#1" />
+            <element signature="e#2367#3006#1" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="494">
-          <caret line="441" lean-forward="true" selection-start-line="441" selection-end-line="441" />
+        <state relative-caret-position="389">
+          <caret line="446" column="142" selection-start-line="446" selection-start-column="142" selection-end-line="446" selection-end-column="142" />
           <folding>
-            <element signature="e#18#27#0" expanded="true" />
             <element signature="e#1339#1486#0" />
             <element signature="e#1957#2405#0" />
-            <element signature="e#2600#3079#0" />
-            <element signature="e#3115#4063#0" />
-            <element signature="e#4199#7722#0" />
             <element signature="e#4246#4788#1" />
             <element signature="e#4798#5344#1" />
-            <element signature="e#5364#6950#1" />
             <element signature="e#7007#7699#0" />
             <element signature="e#5913#6037#0" />
             <element signature="e#6078#6239#0" />
@@ -338,7 +339,6 @@
             <element signature="e#6678#8657#0" />
             <element signature="e#8801#9948#0" />
             <element signature="e#11340#12487#0" />
-            <element signature="e#11293#13209#0" />
             <element signature="e#11542#11823#0" />
             <element signature="e#11867#12869#0" />
           </folding>
