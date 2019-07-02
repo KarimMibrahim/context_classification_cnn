@@ -58,7 +58,32 @@ def load_spectrogram(*args):
         #print("\n Error while computing features for " + str(song_id) + '\n')
         return np.float32(0.0), True
 
+def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
+                      SPECTROGRAM_PATH=SPECTROGRAMS_PATH):
+    # Loading testset groundtruth
+    test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "test_ground_truth.csv"))
+    all_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "balanced_ground_truth_hot_vector.csv"))
+    #all_ground_truth.drop("playlists_count", axis=1, inplace=True);
+    all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
+    all_ground_truth = all_ground_truth.set_index('song_id')
+    all_ground_truth = all_ground_truth.loc[test_ground_truth.song_id]
+    test_classes = all_ground_truth.values
+    test_classes = test_classes.astype(int)
 
+    spectrograms = np.zeros([len(test_ground_truth), 646, 96])
+    songs_ID = np.zeros([len(test_ground_truth), 1])
+    for idx, filename in enumerate(list(test_ground_truth.song_id)):
+        try:
+            spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['arr_0']
+        except:
+            continue
+        if (spect.shape == (1, 646, 96)):
+            spectrograms[idx] = spect
+            songs_ID[idx] = filename
+    spectrograms = np.expand_dims(spectrograms, axis=3)
+    return spectrograms, test_classes
+
+"""
 # Dataset pipelines
 def get_training_dataset(path):
     return get_dataset(path, shuffle=True,
@@ -118,7 +143,7 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     dataset = dataset.map(lambda sample: (sample["features"], sample["binary_label"]))
 
     return dataset
-
+"""
 
 
 
@@ -231,35 +256,8 @@ decoded = Conv2D(1, (3, 3), activation='sigmoid', padding='same')(x)
 autoencoder = Model(input_img, decoded)
 autoencoder.compile(optimizer=Adadelta(learning_rate = 1), loss='binary_crossentropy')
 
-
-training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
-val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
-
-exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME)
-experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
-
-fit_config = {
-    "steps_per_epoch": 1053,
-    "epochs": 10,
-    "initial_epoch": 0,
-    "callbacks": [
-        TensorBoard(log_dir=os.path.join(exp_dir, experiment_name)),
-        ModelCheckpoint(os.path.join(exp_dir, experiment_name, "last_iter.h5"),
-                        save_weights_only=False)
-    ]
-}
-
-# Printing the command to run tensorboard [Just to remember]
-print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
-
-# optimization = tf.keras.optimizers.Adadelta()
-#model = get_model()
-#compile_model(model)
-
 spectrograms, _ = load_test_set_raw()
 spectrograms = spectrograms[:,:640,:,:]
-
-history = autoencoder.fit(spectrograms,spectrograms, **fit_config)
 
 autoencoder.fit(spectrograms, spectrograms,
                 epochs=50,

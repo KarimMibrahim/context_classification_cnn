@@ -232,7 +232,7 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     dataset = dataset.filter(lambda sample: tf.logical_not(sample["error"]))
 
     # map dynamic compression
-    C = 10000
+    C = 100
     dataset = dataset.map(lambda sample: dict(sample, features=tf.log(1 + C * sample["features"])),
                           num_parallel_calls=num_parallel_calls)
 
@@ -294,6 +294,11 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
         if (spect.shape == (1, 646, 96)):
             spectrograms[idx] = spect
             songs_ID[idx] = filename
+
+    #Apply same transformation as trianing [ALWAYS DOUBLE CHECK TRAINING PARAMETERS]
+    C = 100
+    spectrograms = np.log(1 + C * spectrograms)
+
     spectrograms = np.expand_dims(spectrograms, axis=3)
     return spectrograms, test_classes
 

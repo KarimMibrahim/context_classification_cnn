@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/autoencoder.py" beforeDir="false" afterPath="$PROJECT_DIR$/autoencoder.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,22 +13,23 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="false">
+      <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="269">
-              <caret line="438" column="14" lean-forward="true" selection-start-line="438" selection-end-line="439" />
+            <state relative-caret-position="-105">
+              <caret line="236" column="4" selection-start-line="236" selection-start-column="4" selection-end-line="236" selection-end-column="4" />
               <folding>
                 <element signature="e#1339#1486#0" />
                 <element signature="e#1957#2405#0" />
+                <element signature="e#3115#4063#0" />
+                <element signature="e#4199#7722#0" />
                 <element signature="e#4246#4788#1" />
                 <element signature="e#4798#5344#1" />
                 <element signature="e#7007#7699#0" />
+                <element signature="e#7819#7881#0" />
                 <element signature="e#5913#6037#0" />
                 <element signature="e#6078#6239#0" />
                 <element signature="e#6274#6436#0" />
-                <element signature="e#6678#8657#0" />
-                <element signature="e#8801#9948#0" />
                 <element signature="e#11340#12487#0" />
                 <element signature="e#11293#13209#0" />
                 <element signature="e#11542#11823#0" />
@@ -37,16 +39,18 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/autoencoder.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="119">
-              <caret line="204" column="39" selection-start-line="204" selection-start-column="34" selection-end-line="204" selection-end-column="39" />
+            <state relative-caret-position="449">
+              <caret line="261" selection-start-line="261" selection-end-line="264" selection-end-column="29" />
               <folding>
                 <element signature="e#0#48#0" expanded="true" />
                 <element signature="e#770#1249#0" />
                 <element signature="e#1285#2233#0" />
+                <element signature="e#2295#3442#0" />
                 <element signature="e#2294#2418#0" />
+                <element signature="e#3059#5038#0" />
                 <element signature="e#665#2304#1" />
                 <element signature="e#2367#3006#1" />
               </folding>
@@ -82,8 +86,8 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/cnn_model.py" />
         <option value="$PROJECT_DIR$/autoencoder.py" />
+        <option value="$PROJECT_DIR$/cnn_model.py" />
       </list>
     </option>
   </component>
@@ -242,12 +246,12 @@
       <option name="presentableId" value="Default" />
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
-      <workItem from="1561371280062" duration="43773000" />
+      <workItem from="1561371280062" duration="46836000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="63242000" />
+    <option name="totallyTimeSpent" value="66305000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
@@ -308,40 +312,43 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cnn_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="269">
-          <caret line="438" column="14" lean-forward="true" selection-start-line="438" selection-end-line="439" />
-          <folding>
-            <element signature="e#1339#1486#0" />
-            <element signature="e#1957#2405#0" />
-            <element signature="e#4246#4788#1" />
-            <element signature="e#4798#5344#1" />
-            <element signature="e#7007#7699#0" />
-            <element signature="e#5913#6037#0" />
-            <element signature="e#6078#6239#0" />
-            <element signature="e#6274#6436#0" />
-            <element signature="e#6678#8657#0" />
-            <element signature="e#8801#9948#0" />
-            <element signature="e#11340#12487#0" />
-            <element signature="e#11293#13209#0" />
-            <element signature="e#11542#11823#0" />
-            <element signature="e#11867#12869#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/autoencoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="204" column="39" selection-start-line="204" selection-start-column="34" selection-end-line="204" selection-end-column="39" />
+        <state relative-caret-position="449">
+          <caret line="261" selection-start-line="261" selection-end-line="264" selection-end-column="29" />
           <folding>
             <element signature="e#0#48#0" expanded="true" />
             <element signature="e#770#1249#0" />
             <element signature="e#1285#2233#0" />
+            <element signature="e#2295#3442#0" />
             <element signature="e#2294#2418#0" />
+            <element signature="e#3059#5038#0" />
             <element signature="e#665#2304#1" />
             <element signature="e#2367#3006#1" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cnn_model.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-105">
+          <caret line="236" column="4" selection-start-line="236" selection-start-column="4" selection-end-line="236" selection-end-column="4" />
+          <folding>
+            <element signature="e#1339#1486#0" />
+            <element signature="e#1957#2405#0" />
+            <element signature="e#3115#4063#0" />
+            <element signature="e#4199#7722#0" />
+            <element signature="e#4246#4788#1" />
+            <element signature="e#4798#5344#1" />
+            <element signature="e#7007#7699#0" />
+            <element signature="e#7819#7881#0" />
+            <element signature="e#5913#6037#0" />
+            <element signature="e#6078#6239#0" />
+            <element signature="e#6274#6436#0" />
+            <element signature="e#11340#12487#0" />
+            <element signature="e#11293#13209#0" />
+            <element signature="e#11542#11823#0" />
+            <element signature="e#11867#12869#0" />
           </folding>
         </state>
       </provider>
