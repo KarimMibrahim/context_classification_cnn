@@ -33,7 +33,7 @@ SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
-EXPERIMENTNAME = "C1_time"
+EXPERIMENTNAME = "C4_square"
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
@@ -139,7 +139,7 @@ def get_model():
     """
 
     # C4_model
-    """
+
     model = Sequential(
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
@@ -171,9 +171,10 @@ def get_model():
             Dense(15, activation='sigmoid', name="dense_2"),
         ]
     )
-    """
+
 
     # C2_model
+    """
     model = Sequential(
         [
             InputLayer(input_shape=INPUT_SHAPE, name="input_layer"),
@@ -192,7 +193,7 @@ def get_model():
             Dense(15, activation='sigmoid', name="dense_2"),
         ]
     )
-
+    """
     return model
 
 
@@ -428,9 +429,9 @@ def main():
     # Printing the command to run tensorboard [Just to remember]
     print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
 
-    #optimization = tf.keras.optimizers.Adadelta()
+    optimization = tf.keras.optimizers.Adadelta(lr = 0.01)
     model = get_model()
-    compile_model(model)
+    compile_model(model,optimizer=optimization)
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
