@@ -2,7 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Analysis_of_classification_results.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis_of_classification_results.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GroundTruth/test_ground_truth.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/test_ground_truth.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GroundTruth/train_ground_truth.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/train_ground_truth.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GroundTruth/validation_ground_truth.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/validation_ground_truth.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,25 +20,25 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="470">
-              <caret line="202" lean-forward="true" selection-start-line="55" selection-end-line="202" />
+            <state relative-caret-position="-54">
+              <caret line="198" column="64" selection-start-line="198" selection-start-column="64" selection-end-line="198" selection-end-column="64" />
               <folding>
-                <element signature="e#18#27#0" expanded="true" />
-                <element signature="e#1339#1486#0" />
-                <element signature="e#2600#3079#0" />
-                <element signature="e#3115#4063#0" />
-                <element signature="e#4246#4788#1" />
-                <element signature="e#4798#5344#1" />
-                <element signature="e#7007#7699#0" />
-                <element signature="e#7819#7881#0" />
-                <element signature="e#5913#6037#0" />
-                <element signature="e#6078#6239#0" />
-                <element signature="e#6274#6436#0" />
-                <element signature="e#8701#10683#0" />
-                <element signature="e#8801#9948#0" />
-                <element signature="e#11340#12487#0" />
-                <element signature="e#11542#11823#0" />
-                <element signature="e#11867#12869#0" />
+                <element signature="e#1453#1600#0" />
+                <element signature="e#1721#2482#0" />
+                <element signature="e#2595#3615#0" />
+                <element signature="e#3752#7204#0" />
+                <element signature="e#2714#3193#0" />
+                <element signature="e#3229#4177#0" />
+                <element signature="e#4201#7718#0" />
+                <element signature="e#7939#8063#0" />
+                <element signature="e#8104#8265#0" />
+                <element signature="e#8300#8462#0" />
+                <element signature="e#12294#13663#0" />
+                <element signature="e#13813#15113#0" />
+                <element signature="e#15210#17095#0" />
+                <element signature="e#17131#17412#0" />
+                <element signature="e#17456#18458#0" />
+                <element signature="e#18476#21287#0" />
               </folding>
             </state>
           </provider>
@@ -43,17 +47,11 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/autoencoder.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="449">
-              <caret line="261" selection-start-line="261" selection-end-line="264" selection-end-column="29" />
+            <state relative-caret-position="1014">
+              <caret line="245" column="60" selection-start-line="245" selection-start-column="60" selection-end-line="245" selection-end-column="60" />
               <folding>
                 <element signature="e#0#48#0" expanded="true" />
-                <element signature="e#770#1249#0" />
-                <element signature="e#1285#2233#0" />
                 <element signature="e#2295#3442#0" />
-                <element signature="e#2294#2418#0" />
-                <element signature="e#3059#5038#0" />
-                <element signature="e#665#2304#1" />
-                <element signature="e#2367#3006#1" />
               </folding>
             </state>
           </provider>
@@ -79,6 +77,7 @@
       <find>inputlayer</find>
       <find>Pipeline</find>
       <find>encoded_imgs</find>
+      <find>seed</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -93,16 +92,17 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="260" />
-    <option name="y" value="24" />
-    <option name="width" value="1400" />
-    <option name="height" value="1028" />
+    <option name="x" value="1920" />
+    <option name="y" value="-4" />
+    <option name="width" value="1920" />
+    <option name="height" value="1084" />
   </component>
   <component name="ProjectView">
     <navigator proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -114,7 +114,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -187,6 +186,9 @@
       <module name="context_classification_cnn" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -247,18 +249,19 @@
       <option name="presentableId" value="Default" />
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
-      <workItem from="1561371280062" duration="52085000" />
+      <workItem from="1561371280062" duration="57312000" />
+      <workItem from="1562339051232" duration="14328000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="71554000" />
+    <option name="totallyTimeSpent" value="91109000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
+    <frame x="1920" y="-4" width="1920" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2524013" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25506938" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -273,8 +276,7 @@
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" weight="0.32925585" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32925585" />
-      <window_info anchor="bottom" id="Python Console" order="12" visible="true" weight="0.32110092" />
-      <window_info anchor="right" x="0" y="0" width="430" height="884" id="Documentation" side_tool="true" weight="0.25773746" />
+      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.31294596" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -282,6 +284,7 @@
       <window_info anchor="right" id="R Graphics" order="4" />
       <window_info anchor="right" id="R Packages" order="5" />
       <window_info anchor="right" id="Database" order="6" />
+      <window_info anchor="right" x="0" y="0" width="430" height="884" id="Documentation" order="7" side_tool="true" weight="0.25773746" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -315,42 +318,36 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/autoencoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="449">
-          <caret line="261" selection-start-line="261" selection-end-line="264" selection-end-column="29" />
+        <state relative-caret-position="1014">
+          <caret line="245" column="60" selection-start-line="245" selection-start-column="60" selection-end-line="245" selection-end-column="60" />
           <folding>
             <element signature="e#0#48#0" expanded="true" />
-            <element signature="e#770#1249#0" />
-            <element signature="e#1285#2233#0" />
             <element signature="e#2295#3442#0" />
-            <element signature="e#2294#2418#0" />
-            <element signature="e#3059#5038#0" />
-            <element signature="e#665#2304#1" />
-            <element signature="e#2367#3006#1" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="470">
-          <caret line="202" lean-forward="true" selection-start-line="55" selection-end-line="202" />
+        <state relative-caret-position="-54">
+          <caret line="198" column="64" selection-start-line="198" selection-start-column="64" selection-end-line="198" selection-end-column="64" />
           <folding>
-            <element signature="e#18#27#0" expanded="true" />
-            <element signature="e#1339#1486#0" />
-            <element signature="e#2600#3079#0" />
-            <element signature="e#3115#4063#0" />
-            <element signature="e#4246#4788#1" />
-            <element signature="e#4798#5344#1" />
-            <element signature="e#7007#7699#0" />
-            <element signature="e#7819#7881#0" />
-            <element signature="e#5913#6037#0" />
-            <element signature="e#6078#6239#0" />
-            <element signature="e#6274#6436#0" />
-            <element signature="e#8701#10683#0" />
-            <element signature="e#8801#9948#0" />
-            <element signature="e#11340#12487#0" />
-            <element signature="e#11542#11823#0" />
-            <element signature="e#11867#12869#0" />
+            <element signature="e#1453#1600#0" />
+            <element signature="e#1721#2482#0" />
+            <element signature="e#2595#3615#0" />
+            <element signature="e#3752#7204#0" />
+            <element signature="e#2714#3193#0" />
+            <element signature="e#3229#4177#0" />
+            <element signature="e#4201#7718#0" />
+            <element signature="e#7939#8063#0" />
+            <element signature="e#8104#8265#0" />
+            <element signature="e#8300#8462#0" />
+            <element signature="e#12294#13663#0" />
+            <element signature="e#13813#15113#0" />
+            <element signature="e#15210#17095#0" />
+            <element signature="e#17131#17412#0" />
+            <element signature="e#17456#18458#0" />
+            <element signature="e#18476#21287#0" />
           </folding>
         </state>
       </provider>

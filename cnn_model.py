@@ -18,6 +18,8 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, class
     hamming_loss
 from sklearn.model_selection import train_test_split
 from dzr_ml_tf.device import limit_memory_usage
+from sklearn.preprocessing import MultiLabelBinarizer
+from sklearn.utils import check_random_state
 
 limit_memory_usage(0.3)
 plt.rcParams.update({'font.size':22})
@@ -38,20 +40,194 @@ INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
 
+def mark_groups_for_samples(df, n_samples, extra_criterion):
+    """
+        Return groups, an array of size n_samples, marking the group to which each sample belongs
+        The default group is -1 if extra_criterion is None
+        If a criterion is given (artist or album), then this information is taken into account
+    """
+    groups = np.array([-1 for _ in range(n_samples)])
+    if extra_criterion is None:
+        return groups
+
+    if extra_criterion == "artist":
+        crit_col = "artist_id"
+    elif extra_criterion == "album":
+        crit_col = "releasegroupmbid"
+    else:
+        return groups
+
+    gp = df.groupby(crit_col)
+    i_key = 0
+    for g_key in gp.groups:
+        samples_idx_per_group = gp.groups[g_key].tolist()
+        groups[samples_idx_per_group] = i_key
+        i_key += 1
+    return groups
+
+
+def select_fold(index_label, desired_samples_per_label_per_fold, desired_samples_per_fold, random_state):
+    """
+        For a label, finds the fold where the next sample should be distributed
+    """
+    # Find the folds with the largest number of desired samples for this label
+    largest_desired_label_samples = max(desired_samples_per_label_per_fold[:, index_label])
+    folds_targeted = np.where(desired_samples_per_label_per_fold[:, index_label] == largest_desired_label_samples)[0]
+
+    if len(folds_targeted) == 1:
+        selected_fold = folds_targeted[0]
+    else:
+        # Break ties by considering the largest number of desired samples
+        largest_desired_samples = max(desired_samples_per_fold[folds_targeted])
+        folds_re_targeted = np.intersect1d(np.where(
+            desired_samples_per_fold == largest_desired_samples)[0], folds_targeted)
+
+        # If there is still a tie break it picking a random index
+        if len(folds_re_targeted) == 1:
+            selected_fold = folds_re_targeted[0]
+        else:
+            selected_fold = random_state.choice(folds_re_targeted)
+    return selected_fold
+
+
+def iterative_split(df, out_file, target, n_splits, extra_criterion=None, seed=None):
+    """
+        Implement iterative split algorithm
+        df is the input data
+        out_file is the output file containing the same data as the input plus a column about the fold
+        n_splits the number of folds
+        target is the target source for which the files are generated
+        extra_criterion, an extra condition to be taken into account in the split such as the artist
+    """
+    print("Starting the iterative split")
+    random_state = check_random_state(seed)
+
+    mlb_target = MultiLabelBinarizer()
+    M = mlb_target.fit_transform(df[target].str.split('\t'))
+
+    n_samples = len(df)
+    n_labels = len(mlb_target.classes_)
+
+    # If the extra criterion is given create "groups", which shows to which group each sample belongs
+    groups = mark_groups_for_samples(df, n_samples, extra_criterion)
+
+    ratios = np.ones((1, n_splits))/n_splits
+    # Calculate the desired number of samples for each fold
+    desired_samples_per_fold = ratios.T * n_samples
+
+    # Calculate the desired number of samples of each label for each fold
+    number_samples_per_label = np.asarray(M.sum(axis=0)).reshape((n_labels, 1))
+    desired_samples_per_label_per_fold = np.dot(ratios.T, number_samples_per_label.T)  # shape: n_splits, n_samples
+
+    seen = set()
+    out_folds = np.array([-1 for _ in range(n_samples)])
+
+    count_seen = 0
+    print("Going through the samples")
+    while n_samples > 0:
+        # Find the index of the label with the fewest remaining examples
+        valid_idx = np.where(number_samples_per_label > 0)[0]
+        index_label = valid_idx[number_samples_per_label[valid_idx].argmin()]
+        label = mlb_target.classes_[index_label]
+
+        # Find the samples belonging to the label with the fewest remaining examples
+        # second select all samples belonging to the selected label and remove the indices
+        # of the samples which have been already seen
+        all_label_indices = set(M[:, index_label].nonzero()[0])
+        indices = all_label_indices - seen
+        assert(len(indices) > 0)
+
+        print(label, index_label, number_samples_per_label[index_label], len(indices))
+
+        for i in indices:
+            if i in seen:
+                continue
+
+            # Find the folds with the largest number of desired samples for this label
+            selected_fold = select_fold(index_label, desired_samples_per_label_per_fold,
+                                        desired_samples_per_fold, random_state)
+
+            # put in this fold all the samples which belong to the same group
+            idx_same_group = np.array([i])
+            if groups[i] != -1:
+                idx_same_group = np.where(groups == groups[i])[0]
+
+            # Update the folds, the seen, the number of samples and desired_samples_per_fold
+            out_folds[idx_same_group] = selected_fold
+            seen.update(idx_same_group)
+            count_seen += idx_same_group.size
+            n_samples -= idx_same_group.size
+            desired_samples_per_fold[selected_fold] -= idx_same_group.size
+
+            # The sample may have multiple labels so update for all
+            for idx in idx_same_group:
+                all_labels = M[idx].nonzero()
+                desired_samples_per_label_per_fold[selected_fold, all_labels] -= 1
+                number_samples_per_label[all_labels] -= 1
+
+    df['fold'] = out_folds
+    df.drop("index",axis = 1, inplace = True)
+    print(count_seen, len(df))
+    df.to_csv(out_file, sep=',', index=False)
+    return df
+
+
 
 def split_dataset(csv_path=os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_single_label.csv"),
-                  test_size=0.25, seed=0, save_csv=True,
-                  train_save_path=os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"),
-                  test_save_path=os.path.join(SOURCE_PATH, "GroundTruth/test_ground_truth.csv"),
-                  validation_save_path = os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv")):
+                  artists_csv_path=os.path.join(SOURCE_PATH, "GroundTruth/songs_artists.tsv"),
+                  test_size=0.25, seed=0, save_csv=True, n_splits = 4,
+                  train_save_path=os.path.join(SOURCE_PATH, "GroundTruth/"),
+                  test_save_path=os.path.join(SOURCE_PATH, "GroundTruth/"),
+                  validation_save_path = os.path.join(SOURCE_PATH, "GroundTruth/"),
+                  folds_save_path =os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_folds.csv")):
+    song_artist = pd.read_csv(artists_csv_path, delimiter='\t')
     groundtruth = pd.read_csv(csv_path)
-    train, validation = train_test_split(groundtruth, test_size=0.1, random_state=seed)
-    train, test = train_test_split(train, test_size=test_size, random_state=seed)
+    ground_truth_artist = groundtruth.merge(song_artist, on='song_id')
+    ground_truth_artist = ground_truth_artist.drop_duplicates("song_id")
+    ground_truth_artist = ground_truth_artist.reset_index()
+
+    #mlb_target = MultiLabelBinarizer(sparse_output=True)
+    #M = mlb_target.fit_transform(ground_truth_artist[label])
+
+    groundtruth_folds = iterative_split(df = ground_truth_artist, out_file = folds_save_path, target = 'label',
+                                        n_splits = n_splits , extra_criterion='artist', seed=seed)
+    test = groundtruth_folds[groundtruth_folds.fold == 0]
+    train_validation_combined = groundtruth_folds[groundtruth_folds.fold.isin(np.arange(1,n_splits))]
+    train, validation = train_test_split(train_validation_combined, test_size=0.1, random_state=seed)
+    train.drop(["artist_id", "fold"], axis=1, inplace=True)
+    test.drop(["artist_id", "fold"], axis=1, inplace=True)
+    validation.drop(["artist_id", "fold"], axis=1, inplace=True)
+    #train, test = train_test_split(train, test_size=test_size, random_state=seed)
     if save_csv:
-        pd.DataFrame.to_csv(train, train_save_path, index=False)
-        pd.DataFrame.to_csv(validation, validation_save_path, index=False)
-        pd.DataFrame.to_csv(test, test_save_path, index=False)
-    return train, test
+        pd.DataFrame.to_csv(train, os.path.join(train_save_path,"train_ground_truth.csv") , index=False)
+        pd.DataFrame.to_csv(validation, os.path.join(validation_save_path,"train_ground_truth.csv") , index=False)
+        pd.DataFrame.to_csv(test, os.path.join(test_save_path,"train_ground_truth.csv"), index=False)
+    #Save data in binarized format as well
+    mlb_target = MultiLabelBinarizer()
+    M = mlb_target.fit_transform(test.label.str.split('\t'))
+    Mdf = pd.DataFrame(M, columns=LABELS_LIST)
+    test.reset_index(inplace = True)
+    test_binarized = pd.concat([test, mdf], axis=1)
+    test_binarized.drop(["index",'label'], inplace=True, axis=1)
+    # For validation
+    mlb_target = MultiLabelBinarizer()
+    M = mlb_target.fit_transform(validation.label.str.split('\t'))
+    Mdf = pd.DataFrame(M, columns=LABELS_LIST)
+    validation.reset_index(inplace = True)
+    validation_binarized = pd.concat([validation, mdf], axis=1)
+    validation_binarized.drop(["index",'label'], inplace=True, axis=1)
+    # for training
+    mlb_target = MultiLabelBinarizer()
+    M = mlb_target.fit_transform(train.label.str.split('\t'))
+    Mdf = pd.DataFrame(M, columns=LABELS_LIST)
+    train.reset_index(inplace = True)
+    train_binarized = pd.concat([train, mdf], axis=1)
+    train_binarized.drop(["index",'label'], inplace=True, axis=1)
+    if save_csv:
+        pd.DataFrame.to_csv(test_binarized, os.path.join(test_save_path,"test_ground_truth_binarized.csv") , index=False)
+        pd.DataFrame.to_csv(validation_binarized, os.path.join(validation_save_path,"test_ground_truth_binarized.csv") , index=False)
+        pd.DataFrame.to_csv(train_binarized, os.path.join(train_save_path,"train_ground_truth_binarized.csv"), index=False)
+    return train, validation, test
 
 
 def load_spectrogram_tf(sample, identifier_key="song_id",
@@ -327,6 +503,37 @@ def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/")
             spect = spect [:,323 : 323+ 646,:]
             spectrograms[idx] = spect
             songs_ID[idx] = filename
+    spectrograms = np.expand_dims(spectrograms, axis=3)
+    return spectrograms, test_classes
+
+
+def load_validation_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
+                      SPECTROGRAM_PATH=SPECTROGRAMS_PATH):
+    # Loading testset groundtruth
+    test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "validation_ground_truth.csv"))
+    all_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "balanced_ground_truth_hot_vector.csv"))
+    #all_ground_truth.drop("playlists_count", axis=1, inplace=True);
+    all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
+    all_ground_truth = all_ground_truth.set_index('song_id')
+    all_ground_truth = all_ground_truth.loc[test_ground_truth.song_id]
+    test_classes = all_ground_truth.values
+    test_classes = test_classes.astype(int)
+
+    spectrograms = np.zeros([len(test_ground_truth), 646, 96])
+    songs_ID = np.zeros([len(test_ground_truth), 1])
+    for idx, filename in enumerate(list(test_ground_truth.song_id)):
+        try:
+            spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['arr_0']
+        except:
+            continue
+        if (spect.shape == (1, 646, 96)):
+            spectrograms[idx] = spect
+            songs_ID[idx] = filename
+
+    #Apply same transformation as trianing [ALWAYS DOUBLE CHECK TRAINING PARAMETERS]
+    C = 100
+    spectrograms = np.log(1 + C * spectrograms)
+
     spectrograms = np.expand_dims(spectrograms, axis=3)
     return spectrograms, test_classes
 
