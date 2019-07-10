@@ -186,9 +186,6 @@ def split_dataset(csv_path=os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_s
     ground_truth_artist = ground_truth_artist.drop_duplicates("song_id")
     ground_truth_artist = ground_truth_artist.reset_index()
 
-    #mlb_target = MultiLabelBinarizer(sparse_output=True)
-    #M = mlb_target.fit_transform(ground_truth_artist[label])
-
     groundtruth_folds = iterative_split(df = ground_truth_artist, out_file = folds_save_path, target = 'label',
                                         n_splits = n_splits , extra_criterion='artist', seed=seed)
     test = groundtruth_folds[groundtruth_folds.fold == 0]
@@ -200,32 +197,32 @@ def split_dataset(csv_path=os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_s
     #train, test = train_test_split(train, test_size=test_size, random_state=seed)
     if save_csv:
         pd.DataFrame.to_csv(train, os.path.join(train_save_path,"train_ground_truth.csv") , index=False)
-        pd.DataFrame.to_csv(validation, os.path.join(validation_save_path,"train_ground_truth.csv") , index=False)
-        pd.DataFrame.to_csv(test, os.path.join(test_save_path,"train_ground_truth.csv"), index=False)
+        pd.DataFrame.to_csv(validation, os.path.join(validation_save_path,"validation_ground_truth.csv") , index=False)
+        pd.DataFrame.to_csv(test, os.path.join(test_save_path,"test_ground_truth.csv"), index=False)
     #Save data in binarized format as well
     mlb_target = MultiLabelBinarizer()
     M = mlb_target.fit_transform(test.label.str.split('\t'))
     Mdf = pd.DataFrame(M, columns=LABELS_LIST)
-    test.reset_index(inplace = True)
-    test_binarized = pd.concat([test, mdf], axis=1)
-    test_binarized.drop(["index",'label'], inplace=True, axis=1)
+    test.reset_index(inplace = True,drop = True)
+    test_binarized = pd.concat([test, Mdf], axis=1)
+    test_binarized.drop(['label'], inplace=True, axis=1)
     # For validation
     mlb_target = MultiLabelBinarizer()
     M = mlb_target.fit_transform(validation.label.str.split('\t'))
     Mdf = pd.DataFrame(M, columns=LABELS_LIST)
-    validation.reset_index(inplace = True)
-    validation_binarized = pd.concat([validation, mdf], axis=1)
-    validation_binarized.drop(["index",'label'], inplace=True, axis=1)
+    validation.reset_index(inplace = True,drop = True)
+    validation_binarized = pd.concat([validation, Mdf], axis=1)
+    validation_binarized.drop(['label'], inplace=True, axis=1)
     # for training
     mlb_target = MultiLabelBinarizer()
     M = mlb_target.fit_transform(train.label.str.split('\t'))
     Mdf = pd.DataFrame(M, columns=LABELS_LIST)
-    train.reset_index(inplace = True)
-    train_binarized = pd.concat([train, mdf], axis=1)
-    train_binarized.drop(["index",'label'], inplace=True, axis=1)
+    train.reset_index(inplace = True,drop = True)
+    train_binarized = pd.concat([train, Mdf], axis=1)
+    train_binarized.drop(['label'], inplace=True, axis=1)
     if save_csv:
         pd.DataFrame.to_csv(test_binarized, os.path.join(test_save_path,"test_ground_truth_binarized.csv") , index=False)
-        pd.DataFrame.to_csv(validation_binarized, os.path.join(validation_save_path,"test_ground_truth_binarized.csv") , index=False)
+        pd.DataFrame.to_csv(validation_binarized, os.path.join(validation_save_path,"validation_ground_truth_binarized.csv") , index=False)
         pd.DataFrame.to_csv(train_binarized, os.path.join(train_save_path,"train_ground_truth_binarized.csv"), index=False)
     return train, validation, test
 

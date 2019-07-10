@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GroundTruth/ground_truth_folds.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/ground_truth_folds.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -15,21 +17,24 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="252">
-              <caret line="456" column="68" lean-forward="true" selection-start-line="456" selection-start-column="68" selection-end-line="456" selection-end-column="68" />
+            <state relative-caret-position="900">
+              <caret line="386" lean-forward="true" selection-start-line="386" selection-end-line="386" />
               <folding>
                 <element signature="e#1453#1600#0" />
                 <element signature="e#1721#2482#0" />
                 <element signature="e#2595#3615#0" />
                 <element signature="e#3752#7204#0" />
-                <element signature="e#7930#10019#0" />
+                <element signature="e#5126#7045#0" />
+                <element signature="e#7860#10696#0" />
                 <element signature="e#2714#3193#0" />
                 <element signature="e#3229#4177#0" />
                 <element signature="e#4201#7718#0" />
+                <element signature="e#14741#14803#0" />
                 <element signature="e#7939#8063#0" />
                 <element signature="e#8104#8265#0" />
                 <element signature="e#8300#8462#0" />
                 <element signature="e#15627#17604#0" />
+                <element signature="e#17748#19042#0" />
                 <element signature="e#12294#13663#0" />
                 <element signature="e#13813#15113#0" />
                 <element signature="e#15210#17095#0" />
@@ -246,12 +251,12 @@
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
       <workItem from="1561371280062" duration="57312000" />
-      <workItem from="1562339051232" duration="15089000" />
+      <workItem from="1562339051232" duration="17102000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="91870000" />
+    <option name="totallyTimeSpent" value="93883000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
@@ -325,21 +330,24 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="456" column="68" lean-forward="true" selection-start-line="456" selection-start-column="68" selection-end-line="456" selection-end-column="68" />
+        <state relative-caret-position="900">
+          <caret line="386" lean-forward="true" selection-start-line="386" selection-end-line="386" />
           <folding>
             <element signature="e#1453#1600#0" />
             <element signature="e#1721#2482#0" />
             <element signature="e#2595#3615#0" />
             <element signature="e#3752#7204#0" />
-            <element signature="e#7930#10019#0" />
+            <element signature="e#5126#7045#0" />
+            <element signature="e#7860#10696#0" />
             <element signature="e#2714#3193#0" />
             <element signature="e#3229#4177#0" />
             <element signature="e#4201#7718#0" />
+            <element signature="e#14741#14803#0" />
             <element signature="e#7939#8063#0" />
             <element signature="e#8104#8265#0" />
             <element signature="e#8300#8462#0" />
             <element signature="e#15627#17604#0" />
+            <element signature="e#17748#19042#0" />
             <element signature="e#12294#13663#0" />
             <element signature="e#13813#15113#0" />
             <element signature="e#15210#17095#0" />
