@@ -2,11 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analysis_of_classification_results.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis_of_classification_results.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GroundTruth/test_ground_truth.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/test_ground_truth.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GroundTruth/train_ground_truth.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/train_ground_truth.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GroundTruth/validation_ground_truth.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/validation_ground_truth.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -20,19 +15,21 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-54">
-              <caret line="198" column="64" selection-start-line="198" selection-start-column="64" selection-end-line="198" selection-end-column="64" />
+            <state relative-caret-position="252">
+              <caret line="456" column="68" lean-forward="true" selection-start-line="456" selection-start-column="68" selection-end-line="456" selection-end-column="68" />
               <folding>
                 <element signature="e#1453#1600#0" />
                 <element signature="e#1721#2482#0" />
                 <element signature="e#2595#3615#0" />
                 <element signature="e#3752#7204#0" />
+                <element signature="e#7930#10019#0" />
                 <element signature="e#2714#3193#0" />
                 <element signature="e#3229#4177#0" />
                 <element signature="e#4201#7718#0" />
                 <element signature="e#7939#8063#0" />
                 <element signature="e#8104#8265#0" />
                 <element signature="e#8300#8462#0" />
+                <element signature="e#15627#17604#0" />
                 <element signature="e#12294#13663#0" />
                 <element signature="e#13813#15113#0" />
                 <element signature="e#15210#17095#0" />
@@ -92,7 +89,6 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1920" />
     <option name="y" value="-4" />
     <option name="width" value="1920" />
     <option name="height" value="1084" />
@@ -250,15 +246,15 @@
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
       <workItem from="1561371280062" duration="57312000" />
-      <workItem from="1562339051232" duration="14328000" />
+      <workItem from="1562339051232" duration="15089000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="91109000" />
+    <option name="totallyTimeSpent" value="91870000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1920" y="-4" width="1920" height="1084" extended-state="6" />
+    <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.25506938" />
@@ -329,19 +325,21 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-54">
-          <caret line="198" column="64" selection-start-line="198" selection-start-column="64" selection-end-line="198" selection-end-column="64" />
+        <state relative-caret-position="252">
+          <caret line="456" column="68" lean-forward="true" selection-start-line="456" selection-start-column="68" selection-end-line="456" selection-end-column="68" />
           <folding>
             <element signature="e#1453#1600#0" />
             <element signature="e#1721#2482#0" />
             <element signature="e#2595#3615#0" />
             <element signature="e#3752#7204#0" />
+            <element signature="e#7930#10019#0" />
             <element signature="e#2714#3193#0" />
             <element signature="e#3229#4177#0" />
             <element signature="e#4201#7718#0" />
             <element signature="e#7939#8063#0" />
             <element signature="e#8104#8265#0" />
             <element signature="e#8300#8462#0" />
+            <element signature="e#15627#17604#0" />
             <element signature="e#12294#13663#0" />
             <element signature="e#13813#15113#0" />
             <element signature="e#15210#17095#0" />
