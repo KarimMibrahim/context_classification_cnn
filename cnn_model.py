@@ -12,7 +12,7 @@ from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistri
 import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
-
+from focal_loss import focal_loss
 # Machine Learning preprocessing and evaluation
 from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, roc_auc_score, \
     hamming_loss
@@ -20,6 +20,7 @@ from sklearn.model_selection import train_test_split
 from dzr_ml_tf.device import limit_memory_usage
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.utils import check_random_state
+
 
 limit_memory_usage(0.3)
 plt.rcParams.update({'font.size':22})
@@ -30,9 +31,9 @@ SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
-SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
-SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
+#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
 EXPERIMENTNAME = "C4_square"
@@ -635,7 +636,7 @@ def main():
 
     optimization = tf.keras.optimizers.Adadelta(lr = 0.01)
     model = get_model()
-    compile_model(model,optimizer=optimization)
+    compile_model(model,optimizer=optimization, loss=[focal_loss(alpha=.25, gamma=2)])
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
