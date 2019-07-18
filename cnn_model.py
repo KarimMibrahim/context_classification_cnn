@@ -8,11 +8,13 @@ import matplotlib.pyplot as plt
 # Deep Learning
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistributed, Flatten, GRU, Dropout, Dense, BatchNormalization
+from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistributed, Flatten, GRU, Dropout, Dense, \
+    BatchNormalization
 import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
 from focal_loss import focal_loss
+
 # Machine Learning preprocessing and evaluation
 from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, roc_auc_score, \
     hamming_loss
@@ -21,25 +23,25 @@ from dzr_ml_tf.device import limit_memory_usage
 from sklearn.preprocessing import MultiLabelBinarizer
 from sklearn.utils import check_random_state
 
-
 limit_memory_usage(0.3)
-plt.rcParams.update({'font.size':22})
-#os.environ["CUDA_VISIBLE_DEVICES"]="2"
+plt.rcParams.update({'font.size': 22})
+# os.environ["CUDA_VISIBLE_DEVICES"]="2"
 
 
 SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
-#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
-#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
+# SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+# SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+# OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
 EXPERIMENTNAME = "C4_square"
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
+
 
 def mark_groups_for_samples(df, n_samples, extra_criterion):
     """
@@ -112,7 +114,7 @@ def iterative_split(df, out_file, target, n_splits, extra_criterion=None, seed=N
     # If the extra criterion is given create "groups", which shows to which group each sample belongs
     groups = mark_groups_for_samples(df, n_samples, extra_criterion)
 
-    ratios = np.ones((1, n_splits))/n_splits
+    ratios = np.ones((1, n_splits)) / n_splits
     # Calculate the desired number of samples for each fold
     desired_samples_per_fold = ratios.T * n_samples
 
@@ -136,7 +138,7 @@ def iterative_split(df, out_file, target, n_splits, extra_criterion=None, seed=N
         # of the samples which have been already seen
         all_label_indices = set(M[:, index_label].nonzero()[0])
         indices = all_label_indices - seen
-        assert(len(indices) > 0)
+        assert (len(indices) > 0)
 
         print(label, index_label, number_samples_per_label[index_label], len(indices))
 
@@ -167,64 +169,66 @@ def iterative_split(df, out_file, target, n_splits, extra_criterion=None, seed=N
                 number_samples_per_label[all_labels] -= 1
 
     df['fold'] = out_folds
-    df.drop("index",axis = 1, inplace = True)
+    df.drop("index", axis=1, inplace=True)
     print(count_seen, len(df))
     df.to_csv(out_file, sep=',', index=False)
     return df
 
 
-
 def split_dataset(csv_path=os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_single_label.csv"),
                   artists_csv_path=os.path.join(SOURCE_PATH, "GroundTruth/songs_artists.tsv"),
-                  test_size=0.25, seed=0, save_csv=True, n_splits = 4,
+                  test_size=0.25, seed=0, save_csv=True, n_splits=4,
                   train_save_path=os.path.join(SOURCE_PATH, "GroundTruth/"),
                   test_save_path=os.path.join(SOURCE_PATH, "GroundTruth/"),
-                  validation_save_path = os.path.join(SOURCE_PATH, "GroundTruth/"),
-                  folds_save_path =os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_folds.csv")):
+                  validation_save_path=os.path.join(SOURCE_PATH, "GroundTruth/"),
+                  folds_save_path=os.path.join(SOURCE_PATH, "GroundTruth/ground_truth_folds.csv")):
     song_artist = pd.read_csv(artists_csv_path, delimiter='\t')
     groundtruth = pd.read_csv(csv_path)
     ground_truth_artist = groundtruth.merge(song_artist, on='song_id')
     ground_truth_artist = ground_truth_artist.drop_duplicates("song_id")
     ground_truth_artist = ground_truth_artist.reset_index()
 
-    groundtruth_folds = iterative_split(df = ground_truth_artist, out_file = folds_save_path, target = 'label',
-                                        n_splits = n_splits , extra_criterion='artist', seed=seed)
+    groundtruth_folds = iterative_split(df=ground_truth_artist, out_file=folds_save_path, target='label',
+                                        n_splits=n_splits, extra_criterion='artist', seed=seed)
     test = groundtruth_folds[groundtruth_folds.fold == 0]
-    train_validation_combined = groundtruth_folds[groundtruth_folds.fold.isin(np.arange(1,n_splits))]
+    train_validation_combined = groundtruth_folds[groundtruth_folds.fold.isin(np.arange(1, n_splits))]
     train, validation = train_test_split(train_validation_combined, test_size=0.1, random_state=seed)
     train.drop(["artist_id", "fold"], axis=1, inplace=True)
     test.drop(["artist_id", "fold"], axis=1, inplace=True)
     validation.drop(["artist_id", "fold"], axis=1, inplace=True)
-    #train, test = train_test_split(train, test_size=test_size, random_state=seed)
+    # train, test = train_test_split(train, test_size=test_size, random_state=seed)
     if save_csv:
-        pd.DataFrame.to_csv(train, os.path.join(train_save_path,"train_ground_truth.csv") , index=False)
-        pd.DataFrame.to_csv(validation, os.path.join(validation_save_path,"validation_ground_truth.csv") , index=False)
-        pd.DataFrame.to_csv(test, os.path.join(test_save_path,"test_ground_truth.csv"), index=False)
-    #Save data in binarized format as well
+        pd.DataFrame.to_csv(train, os.path.join(train_save_path, "train_ground_truth.csv"), index=False)
+        pd.DataFrame.to_csv(validation, os.path.join(validation_save_path, "validation_ground_truth.csv"), index=False)
+        pd.DataFrame.to_csv(test, os.path.join(test_save_path, "test_ground_truth.csv"), index=False)
+    # Save data in binarized format as well
     mlb_target = MultiLabelBinarizer()
     M = mlb_target.fit_transform(test.label.str.split('\t'))
     Mdf = pd.DataFrame(M, columns=LABELS_LIST)
-    test.reset_index(inplace = True,drop = True)
+    test.reset_index(inplace=True, drop=True)
     test_binarized = pd.concat([test, Mdf], axis=1)
     test_binarized.drop(['label'], inplace=True, axis=1)
     # For validation
     mlb_target = MultiLabelBinarizer()
     M = mlb_target.fit_transform(validation.label.str.split('\t'))
     Mdf = pd.DataFrame(M, columns=LABELS_LIST)
-    validation.reset_index(inplace = True,drop = True)
+    validation.reset_index(inplace=True, drop=True)
     validation_binarized = pd.concat([validation, Mdf], axis=1)
     validation_binarized.drop(['label'], inplace=True, axis=1)
     # for training
     mlb_target = MultiLabelBinarizer()
     M = mlb_target.fit_transform(train.label.str.split('\t'))
     Mdf = pd.DataFrame(M, columns=LABELS_LIST)
-    train.reset_index(inplace = True,drop = True)
+    train.reset_index(inplace=True, drop=True)
     train_binarized = pd.concat([train, Mdf], axis=1)
     train_binarized.drop(['label'], inplace=True, axis=1)
     if save_csv:
-        pd.DataFrame.to_csv(test_binarized, os.path.join(test_save_path,"test_ground_truth_binarized.csv") , index=False)
-        pd.DataFrame.to_csv(validation_binarized, os.path.join(validation_save_path,"validation_ground_truth_binarized.csv") , index=False)
-        pd.DataFrame.to_csv(train_binarized, os.path.join(train_save_path,"train_ground_truth_binarized.csv"), index=False)
+        pd.DataFrame.to_csv(test_binarized, os.path.join(test_save_path, "test_ground_truth_binarized.csv"),
+                            index=False)
+        pd.DataFrame.to_csv(validation_binarized,
+                            os.path.join(validation_save_path, "validation_ground_truth_binarized.csv"), index=False)
+        pd.DataFrame.to_csv(train_binarized, os.path.join(train_save_path, "train_ground_truth_binarized.csv"),
+                            index=False)
     return train, validation, test
 
 
@@ -261,13 +265,13 @@ def load_spectrogram(*args):
         # tf.logging.info(f"Load spectrogram for {song_id}")
         spect = np.load(os.path.join(path, str(song_id) + '.npz'))['arr_0']
         if (spect.shape != (1, 646, 96)):
-            #print("\n Error while computing features for" +  str(song_id) + '\n')
+            # print("\n Error while computing features for" +  str(song_id) + '\n')
             return np.float32(0.0), True
             # spect = spect[:,215:215+646]
         # print(spect.shape)
         return spect, False
     except Exception as err:
-        #print("\n Error while computing features for " + str(song_id) + '\n')
+        # print("\n Error while computing features for " + str(song_id) + '\n')
         return np.float32(0.0), True
 
 
@@ -346,7 +350,6 @@ def get_model():
         ]
     )
 
-
     # C2_model
     """
     model = Sequential(
@@ -422,7 +425,7 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     dataset = dataset.map(lambda sample: dict(sample,
                                               features=dp.set_tensor_shape(sample["features"], input_shape)))
 
-    #if cache_dir:
+    # if cache_dir:
     #    os.makedirs(cache_dir, exist_ok=True)
     #    dataset = dataset.cache(cache_dir)
 
@@ -452,7 +455,7 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
     # Loading testset groundtruth
     test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "test_ground_truth_binarized.csv"))
     all_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "balanced_ground_truth_hot_vector.csv"))
-    #all_ground_truth.drop("playlists_count", axis=1, inplace=True);
+    # all_ground_truth.drop("playlists_count", axis=1, inplace=True);
     all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
     all_ground_truth = all_ground_truth.set_index('song_id')
     all_ground_truth = all_ground_truth.loc[test_ground_truth.song_id]
@@ -470,19 +473,20 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
             spectrograms[idx] = spect
             songs_ID[idx] = filename
 
-    #Apply same transformation as trianing [ALWAYS DOUBLE CHECK TRAINING PARAMETERS]
+    # Apply same transformation as trianing [ALWAYS DOUBLE CHECK TRAINING PARAMETERS]
     C = 100
     spectrograms = np.log(1 + C * spectrograms)
 
     spectrograms = np.expand_dims(spectrograms, axis=3)
     return spectrograms, test_classes
 
+
 def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
-                      SPECTROGRAM_PATH="/home/karim/Documents/MelSpectograms_top20/"):
+                          SPECTROGRAM_PATH="/home/karim/Documents/MelSpectograms_top20/"):
     # Loading testset groundtruth
     test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "old_test_ground_truth[unbalanced].csv"))
     all_ground_truth = pd.read_pickle(os.path.join(LOADING_PATH, "old_ground_truth_hot_vector[unblanced].pkl"))
-    all_ground_truth.drop(['playlists_count','train', 'shower', 'park', 'morning', 'training'], axis=1, inplace=True);
+    all_ground_truth.drop(['playlists_count', 'train', 'shower', 'park', 'morning', 'training'], axis=1, inplace=True);
     all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
     test_ground_truth = test_ground_truth[test_ground_truth.song_id.isin(all_ground_truth.song_id)]
     all_ground_truth = all_ground_truth.set_index('song_id')
@@ -498,7 +502,7 @@ def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/")
         except:
             continue
         if (spect.shape == (1, 1292, 96)):
-            spect = spect [:,323 : 323+ 646,:]
+            spect = spect[:, 323: 323 + 646, :]
             spectrograms[idx] = spect
             songs_ID[idx] = filename
     spectrograms = np.expand_dims(spectrograms, axis=3)
@@ -506,11 +510,11 @@ def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/")
 
 
 def load_validation_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
-                      SPECTROGRAM_PATH=SPECTROGRAMS_PATH):
+                            SPECTROGRAM_PATH=SPECTROGRAMS_PATH):
     # Loading testset groundtruth
     test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "validation_ground_truth.csv"))
     all_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "balanced_ground_truth_hot_vector.csv"))
-    #all_ground_truth.drop("playlists_count", axis=1, inplace=True);
+    # all_ground_truth.drop("playlists_count", axis=1, inplace=True);
     all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
     all_ground_truth = all_ground_truth.set_index('song_id')
     all_ground_truth = all_ground_truth.loc[test_ground_truth.song_id]
@@ -528,7 +532,7 @@ def load_validation_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/
             spectrograms[idx] = spect
             songs_ID[idx] = filename
 
-    #Apply same transformation as trianing [ALWAYS DOUBLE CHECK TRAINING PARAMETERS]
+    # Apply same transformation as trianing [ALWAYS DOUBLE CHECK TRAINING PARAMETERS]
     C = 100
     spectrograms = np.log(1 + C * spectrograms)
 
@@ -552,9 +556,9 @@ def evaluate_model(model, spectrograms, test_classes, saving_path, evaluation_fi
     # Area Under the Receiver Operating Characteristic Curve (ROC AUC)
     auc_roc = roc_auc_score(test_classes, test_pred_prob)
     print("Macro Area Under the Curve (AUC) is: " + str(auc_roc))
-    auc_roc_micro = roc_auc_score(test_classes, test_pred_prob, average = "micro")
+    auc_roc_micro = roc_auc_score(test_classes, test_pred_prob, average="micro")
     print("Micro Area Under the Curve (AUC) is: " + str(auc_roc_micro))
-    auc_roc_weighted = roc_auc_score(test_classes, test_pred_prob, average = "weighted")
+    auc_roc_weighted = roc_auc_score(test_classes, test_pred_prob, average="weighted")
     print("Weighted Area Under the Curve (AUC) is: " + str(auc_roc_weighted))
     # Hamming loss is the fraction of labels that are incorrectly predicted.
     hamming_error = hamming_loss(test_classes, test_pred)
@@ -562,7 +566,7 @@ def evaluate_model(model, spectrograms, test_classes, saving_path, evaluation_fi
     with open(evaluation_file_path, "w") as f:
         f.write("Exact match accuracy is: " + str(accuracy) + "%\n" + "Area Under the Curve (AUC) is: " + str(auc_roc)
                 + "\nMicro AUC is:" + str(auc_roc_micro) + "\nWeighted AUC is:" + str(auc_roc_weighted)
-                +  "\nHamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
+                + "\nHamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
     print("saving prediction to disk")
     np.savetxt(os.path.join(saving_path, 'predictions.out'), test_pred_prob, delimiter=',')
     np.savetxt(os.path.join(saving_path, 'test_ground_truth_classes.txt'), test_classes, delimiter=',')
@@ -578,6 +582,7 @@ def save_model(model, path):
     model.save_weights(os.join.path(path, "model.h5"))
     print("Saved model to disk")
 
+
 def plot_loss_acuracy(history, path):
     # Plot training & validation accuracy values
     plt.figure(figsize=(10, 10))
@@ -587,10 +592,10 @@ def plot_loss_acuracy(history, path):
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Test'], loc='upper left')
-    plt.savefig(os.path.join(path , "model_accuracy.png"))
-    plt.savefig(os.path.join(path,"model_accuracy.pdf"), format='pdf')
-    #plt.savefig(os.path.join(path,label + "_model_accuracy.eps"), format='eps', dpi=900)
-    #Plot training & validation loss values
+    plt.savefig(os.path.join(path, "model_accuracy.png"))
+    plt.savefig(os.path.join(path, "model_accuracy.pdf"), format='pdf')
+    # plt.savefig(os.path.join(path,label + "_model_accuracy.eps"), format='eps', dpi=900)
+    # Plot training & validation loss values
     plt.figure(figsize=(10, 10))
     plt.plot(history.history['loss'])
     plt.plot(history.history['val_loss'])
@@ -600,18 +605,19 @@ def plot_loss_acuracy(history, path):
     plt.legend(['Train', 'Test'], loc='upper left')
     plt.savefig(os.path.join(path, "model_loss.png"))
     plt.savefig(os.path.join(path, "model_loss.pdf"), format='pdf')
-    #plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
+    # plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
+
 
 def main():
     # splitting datasets
-    #split_dataset()
+    # split_dataset()
 
     # Loading datasets
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
 
     # TODO: path
-    exp_dir = os.path.join(OUTPUT_PATH,EXPERIMENTNAME)
+    exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME)
     experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
 
     fit_config = {
@@ -634,9 +640,9 @@ def main():
     # Printing the command to run tensorboard [Just to remember]
     print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
 
-    optimization = tf.keras.optimizers.Adadelta(lr = 0.01)
+    optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
-    compile_model(model,optimizer=optimization, loss=[focal_loss(alpha=.25, gamma=2)])
+    compile_model(model, optimizer=optimization)
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
@@ -648,17 +654,20 @@ def main():
     # Load model with best validation results and apply on testset
     model.load_weights(os.path.join(exp_dir, experiment_name, "best_eval.h5"))
     spectrograms, test_classes = load_test_set_raw()
-    accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,saving_path= os.path.join(exp_dir, experiment_name),
-                                                      evaluation_file_path=os.path.join(exp_dir, experiment_name, "evaluation_results.txt" ))
+    accuracy, auc_roc, hamming_error = evaluate_model(model, spectrograms, test_classes,
+                                                      saving_path=os.path.join(exp_dir, experiment_name),
+                                                      evaluation_file_path=os.path.join(exp_dir, experiment_name,
+                                                                                        "evaluation_results.txt"))
 
     # save_model(model,"path/path/path")
     plot_loss_acuracy(history, os.path.join(exp_dir, experiment_name))
 
     # Evaluate on old dataset
-    #old_specs, old_test_classes = load_old_test_set_raw()
-    #print("\nEvaluating on old testset:")
-    #accuracy, auc_roc, hamming_error = evaluate_model(model, old_specs, old_test_classes,saving_path= os.path.join(exp_dir, experiment_name),
+    # old_specs, old_test_classes = load_old_test_set_raw()
+    # print("\nEvaluating on old testset:")
+    # accuracy, auc_roc, hamming_error = evaluate_model(model, old_specs, old_test_classes,saving_path= os.path.join(exp_dir, experiment_name),
     #                                                 evaluation_file_path=os.path.join(exp_dir, experiment_name, "old_evaluation_results.txt"))
+
 
 if __name__ == "__main__":
     main()
