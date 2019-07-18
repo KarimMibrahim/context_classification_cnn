@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.ipynb_checkpoints/Analysis_of_classification_results-checkpoint.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Analysis_of_classification_results.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Analysis_of_classification_results [analysis_moved_to_sourcecode].ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Analysis_of_classification_results [analysis_moved_to_sourcecode].ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,16 +16,14 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cnn_model.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="462">
-              <caret line="590" column="12" selection-start-line="590" selection-end-line="591" />
+            <state relative-caret-position="285">
+              <caret line="19" column="16" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
               <folding>
-                <element signature="e#18#27#0" expanded="true" />
                 <element signature="e#1453#1600#0" />
                 <element signature="e#1721#2482#0" />
                 <element signature="e#2595#3615#0" />
                 <element signature="e#3752#7204#0" />
                 <element signature="e#5126#7045#0" />
-                <element signature="e#7860#10696#0" />
                 <element signature="e#2714#3193#0" />
                 <element signature="e#3229#4177#0" />
                 <element signature="e#4201#7718#0" />
@@ -50,14 +46,16 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/utilities.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="217">
-              <caret line="153" column="78" lean-forward="true" selection-start-line="153" selection-start-column="78" selection-end-line="153" selection-end-column="78" />
+            <state relative-caret-position="375">
+              <caret line="81" column="56" selection-start-line="81" selection-start-column="56" selection-end-line="81" selection-end-column="56" />
               <folding>
                 <element signature="e#18#36#0" expanded="true" />
                 <element signature="e#196#358#0" />
-                <element signature="e#397#1197#0" />
+                <element signature="e#636#1373#0" />
                 <element signature="e#412#1948#0" />
                 <element signature="e#2473#3659#0" />
+                <element signature="e#4042#10832#0" />
+                <element signature="e#6388#6553#0" />
               </folding>
             </state>
           </provider>
@@ -66,7 +64,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/scrath.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="457">
+            <state relative-caret-position="945">
               <caret line="216" column="41" selection-start-line="216" selection-start-column="41" selection-end-line="216" selection-end-column="41" />
               <folding>
                 <element signature="e#18#27#0" expanded="true" />
@@ -83,8 +81,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/autoencoder.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="7">
-              <caret line="229" column="17" selection-start-line="229" selection-start-column="17" selection-end-line="229" selection-end-column="17" />
+            <state relative-caret-position="662">
+              <caret line="237" column="50" selection-start-line="237" selection-start-column="50" selection-end-line="237" selection-end-column="50" />
               <folding>
                 <element signature="e#0#48#0" expanded="true" />
                 <element signature="e#2295#3442#0" />
@@ -310,12 +308,12 @@
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
       <workItem from="1561371280062" duration="57312000" />
-      <workItem from="1562339051232" duration="37260000" />
+      <workItem from="1562339051232" duration="40528000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="114041000" />
+    <option name="totallyTimeSpent" value="117309000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1920" y="-4" width="1920" height="1084" extended-state="6" />
@@ -376,10 +374,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.5/site-packages/pandas/core/indexing.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="2540" selection-start-line="2540" selection-end-line="2540" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/autoencoder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="7">
-          <caret line="229" column="17" selection-start-line="229" selection-start-column="17" selection-end-line="229" selection-end-column="17" />
+        <state relative-caret-position="662">
+          <caret line="237" column="50" selection-start-line="237" selection-start-column="50" selection-end-line="237" selection-end-column="50" />
           <folding>
             <element signature="e#0#48#0" expanded="true" />
             <element signature="e#2295#3442#0" />
@@ -389,7 +394,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/scrath.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="457">
+        <state relative-caret-position="945">
           <caret line="216" column="41" selection-start-line="216" selection-start-column="41" selection-end-line="216" selection-end-column="41" />
           <folding>
             <element signature="e#18#27#0" expanded="true" />
@@ -404,16 +409,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cnn_model.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="462">
-          <caret line="590" column="12" selection-start-line="590" selection-end-line="591" />
+        <state relative-caret-position="285">
+          <caret line="19" column="16" selection-start-line="19" selection-start-column="16" selection-end-line="19" selection-end-column="16" />
           <folding>
-            <element signature="e#18#27#0" expanded="true" />
             <element signature="e#1453#1600#0" />
             <element signature="e#1721#2482#0" />
             <element signature="e#2595#3615#0" />
             <element signature="e#3752#7204#0" />
             <element signature="e#5126#7045#0" />
-            <element signature="e#7860#10696#0" />
             <element signature="e#2714#3193#0" />
             <element signature="e#3229#4177#0" />
             <element signature="e#4201#7718#0" />
@@ -432,23 +435,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/venv/lib/python3.5/site-packages/pandas/core/indexing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="2540" selection-start-line="2540" selection-end-line="2540" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/utilities.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="217">
-          <caret line="153" column="78" lean-forward="true" selection-start-line="153" selection-start-column="78" selection-end-line="153" selection-end-column="78" />
+        <state relative-caret-position="375">
+          <caret line="81" column="56" selection-start-line="81" selection-start-column="56" selection-end-line="81" selection-end-column="56" />
           <folding>
             <element signature="e#18#36#0" expanded="true" />
             <element signature="e#196#358#0" />
-            <element signature="e#397#1197#0" />
+            <element signature="e#636#1373#0" />
             <element signature="e#412#1948#0" />
             <element signature="e#2473#3659#0" />
+            <element signature="e#4042#10832#0" />
+            <element signature="e#6388#6553#0" />
           </folding>
         </state>
       </provider>

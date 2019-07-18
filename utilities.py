@@ -2,17 +2,21 @@
 import numpy as np
 import os
 import pandas as pd
-import seaborn as sn
 import matplotlib.pyplot as plt
-from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, f1_score
+import seaborn as sn
+from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, f1_score, cohen_kappa_score
+
 pd.option_context('display.float_format', '{:0.2f}'.format)
+sn.set(font_scale=2)  # for label size
+
 
 def load_predictions_groundtruth(predictions_path, groundtruth_path):
     test_pred_prob = np.loadtxt(predictions_path, delimiter=',')
     test_classes = np.loadtxt(groundtruth_path, delimiter=',')
     return test_pred_prob, test_classes
 
-def plot_output_coocurances(model_output_rounded, output_path,LABELS_LIST):
+
+def plot_output_coocurances(model_output_rounded, output_path, LABELS_LIST):
     # Getting coocuarances
     test_pred_df = pd.DataFrame(model_output_rounded, columns=LABELS_LIST)
     coocurrances = pd.DataFrame(columns=test_pred_df.columns)
@@ -26,8 +30,9 @@ def plot_output_coocurances(model_output_rounded, output_path,LABELS_LIST):
     plt.axes([.1, .1, .8, .7])
     plt.figtext(.5, .83, 'Number of track coocurances in model output', fontsize=34, ha='center')
     sn.heatmap(coocurrances, annot=True, annot_kws={"size": 24}, fmt='.0f', cmap=cmap);
-    plt.savefig(os.path.join(output_path, "output_coocurances.pdf"), format="pdf")
-    plt.savefig(os.path.join(output_path, "output_coocurances.png"))
+    plt.savefig(output_path + ".pdf", format="pdf")
+    plt.savefig(output_path + ".png")
+
 
 def plot_false_netgatives_confusion_matrix(model_output_rounded, groundtruth, output_path, LABELS_LIST):
     # Getting false negatives coocuarances
@@ -46,10 +51,11 @@ def plot_false_netgatives_confusion_matrix(model_output_rounded, groundtruth, ou
     plt.axes([.1, .1, .8, .7])
     plt.figtext(.5, .83, 'False negatives confusion matrix', fontsize=34, ha='center')
     sn.heatmap(FN_coocurrances, annot=True, annot_kws={"size": 24}, fmt='.0f', cmap=cmap);
-    plt.savefig(os.path.join(output_path, "false negative coocurances.pdf"), format="pdf")
-    plt.savefig(os.path.join(output_path, "false negative coocurances.png"))
+    plt.savefig(output_path + ".pdf", format="pdf")
+    plt.savefig(output_path + ".png")
 
-def plot_true_poisitve_vs_all_positives(model_output_rounded, groundtruth, output_path,LABELS_LIST):
+
+def plot_true_poisitve_vs_all_positives(model_output_rounded, groundtruth, output_path, LABELS_LIST):
     # Creating a plot of true positives vs all positives
     true_positives_perclass = sum((model_output_rounded == groundtruth) * (groundtruth == 1))
     true_positives_df = pd.DataFrame(columns=LABELS_LIST)
@@ -68,8 +74,8 @@ def plot_true_poisitve_vs_all_positives(model_output_rounded, groundtruth, outpu
     plt.title(
         "Number of true positive per class compared to the total number of positive samples \n Average true positive rate: " + "{:.2f}".format(
             true_positives_ratio_perclass.mean()))
-    plt.savefig(os.path.join(output_path, "TruePositive_vs_allPositives.pdf"), format="pdf")
-    plt.savefig(os.path.join(output_path, "TruePositive_vs_allPositives.png"))
+    plt.savefig(output_path + ".pdf", format="pdf")
+    plt.savefig(output_path + ".png")
 
 
 def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, validation_output=None,
@@ -108,23 +114,28 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
     precision_perlabel = precision_score(groundtruth, model_output_rounded, average=None)
     recall_perlabel = recall_score(groundtruth, model_output_rounded, average=None)
     f1_perlabel = f1_score(groundtruth, model_output_rounded, average=None)
-    results_df = results_df.append(pd.DataFrame([auc_roc_per_label, precision_perlabel, recall_perlabel, f1_perlabel],columns = LABELS_LIST))
+    kappa_perlabel = [cohen_kappa_score(groundtruth[:, x], model_output_rounded[:, x]) for x in range(len(LABELS_LIST))]
+    results_df = results_df.append(
+        pd.DataFrame([auc_roc_per_label, precision_perlabel, recall_perlabel, f1_perlabel, kappa_perlabel], columns=LABELS_LIST))
     results_df.index = ['Ratio of positive samples', 'Model accuracy', 'True positives ratio',
-                        'True negatives ratio', "AUC", "Recall", "Precision", "f1-score"]
+                        'True negatives ratio', "AUC", "Recall", "Precision", "f1-score", "Kappa score"]
 
     # Creating evaluation plots
-    plot_true_poisitve_vs_all_positives(model_output_rounded, groundtruth, output_path,LABELS_LIST)
-    plot_output_coocurances(model_output_rounded, output_path,LABELS_LIST)
-    plot_false_netgatives_confusion_matrix(model_output_rounded, groundtruth, output_path,LABELS_LIST)
+    plot_true_poisitve_vs_all_positives(model_output_rounded, groundtruth,
+                                        os.path.join(output_path, 'TruePositive_vs_allPositives'), LABELS_LIST)
+    plot_output_coocurances(model_output_rounded, os.path.join(output_path, 'output_coocurances'), LABELS_LIST)
+    plot_false_netgatives_confusion_matrix(model_output_rounded, groundtruth,
+                                           os.path.join(output_path, 'false_negative_coocurances'), LABELS_LIST)
 
     # Adjusting threshold based on validation set
     if (validation_groundtruth is not None and validation_output is not None):
         thresholds = np.arange(0, 1, 0.01)
         f1_array = np.zeros((len(LABELS_LIST), len(thresholds)))
         for idx, label in enumerate(LABELS_LIST):
-            f1_array[idx, :] = [f1_score(validation_groundtruth[:, idx], np.round(validation_output[:, idx] - threshold + 0.5))
+            f1_array[idx, :] = [
+                f1_score(validation_groundtruth[:, idx], np.round(validation_output[:, idx] - threshold + 0.5))
 
-                                for threshold in thresholds]
+                for threshold in thresholds]
         threshold_arg = np.argmax(f1_array, axis=1)
         threshold_per_class = thresholds[threshold_arg]
 
@@ -150,25 +161,35 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
         true_negative_ratio_perclass = sum((model_output_rounded == groundtruth)
                                            * (groundtruth == 0)) / (len(groundtruth) - sum(groundtruth))
         results_df = results_df.append(
-            pd.DataFrame([accuracies_perclass,true_positives_ratio_perclass,
+            pd.DataFrame([accuracies_perclass, true_positives_ratio_perclass,
                           true_negative_ratio_perclass], columns=LABELS_LIST))
         # compute additional metrics (AUC,f1,recall,precision)
         auc_roc_per_label = roc_auc_score(groundtruth, model_output, average=None)
         precision_perlabel = precision_score(groundtruth, model_output_rounded, average=None)
         recall_perlabel = recall_score(groundtruth, model_output_rounded, average=None)
         f1_perlabel = f1_score(groundtruth, model_output_rounded, average=None)
+        kappa_perlabel = [cohen_kappa_score(groundtruth[:, x], model_output_rounded[:, x]) for x in
+                          range(len(LABELS_LIST))]
         results_df = results_df.append(
-            pd.DataFrame([auc_roc_per_label, precision_perlabel, recall_perlabel, f1_perlabel],
+            pd.DataFrame([auc_roc_per_label, precision_perlabel, recall_perlabel, f1_perlabel,kappa_perlabel],
                          columns=LABELS_LIST))
         results_df.index = ['Ratio of positive samples', 'Model accuracy', 'True positives ratio',
-                        'True negatives ratio', "AUC", "Precision",  "Recall",  "f1-score",
+                            'True negatives ratio', "AUC", "Precision", "Recall", "f1-score",  "Kappa score",
                             'Optimized model accuracy', 'Optimized true positives ratio',
-                        'Optimized true negatives ratio', "Optimized AUC",
-                            "Optimized precision", "Optimized recall", "Optimized f1-score"]
+                            'Optimized true negatives ratio', "Optimized AUC",
+                            "Optimized precision", "Optimized recall", "Optimized f1-score",  "Optimized Kappa score"]
+
+        # Creating evaluation plots
+        plot_true_poisitve_vs_all_positives(model_output_rounded, groundtruth,
+                                            os.path.join(output_path, 'TruePositive_vs_allPositives[optimized]'),
+                                            LABELS_LIST)
+        plot_output_coocurances(model_output_rounded, os.path.join(output_path, 'output_coocurances[optimized]'),
+                                LABELS_LIST)
+        plot_false_netgatives_confusion_matrix(model_output_rounded, groundtruth,
+                                               os.path.join(output_path, 'false_negative_coocurances[optimized]'),
+                                               LABELS_LIST)
+
         results_df['average'] = results_df.mean(numeric_only=True, axis=1)
         results_df = results_df.T
-        results_df.to_csv(os.path.join(output_path,"results_report.csv"), float_format="%.2f")
+        results_df.to_csv(os.path.join(output_path, "results_report.csv"), float_format="%.2f")
         return results_df.T
-
-
-
