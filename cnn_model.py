@@ -13,6 +13,8 @@ from tensorflow.keras.layers import InputLayer, Conv2D, MaxPooling2D, TimeDistri
 import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
+from tensorflow.keras import backend as K
+
 from focal_loss import focal_loss
 
 # Machine Learning preprocessing and evaluation
@@ -607,6 +609,77 @@ def plot_loss_acuracy(history, path):
     plt.savefig(os.path.join(path, "model_loss.pdf"), format='pdf')
     # plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
 
+
+def tf_idf(track_count,hot_encoded, number_of_classes = 15):
+    class_total_tracks = track_count.sum()
+    class_count_per_sample = hot_encoded.iloc[:, 1:].sum(axis=1)
+    track_tf = track_count.copy()
+    # compute tf (number of track occurances in a context / total number of occurances in this context)
+    track_tf.iloc[:, 1:] = track_count.iloc[:, 1:].div(class_total_tracks, axis=1)
+    # compute idf (number of contexts / number of positive context in this class)
+    track_idf = np.log(number_of_classes / class_count_per_sample)
+    track_tf_idf = track_tf.copy()
+    track_tf_idf.iloc[:,1:] = track_tf.iloc[:, 1:].mul(track_idf, axis=0)
+    #track_tf_idf.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/positive_weights.csv",index=False)
+    return track_tf_idf
+
+def negative_labeles_probabilities(hot_encoded):
+    # count the number of times a combination has appeared with the negative label as 1 / the total number of
+    # occurances of that combination without the negative label
+    negative_weights = np.ones([len(hot_encoded),len(LABELS_LIST)])
+    for sample_idx in range(len(hot_encoded)):
+        for label_idx in range(len(LABELS_LIST)):
+            if hot_encoded.iloc[sample_idx, label_idx+1] == 1:
+                negative_weights[sample_idx, label_idx] = 1
+            else:
+                temp_combination = hot_encoded.iloc[sample_idx,1:].copy()
+                temp_combination[label_idx] = 1
+                positive_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == temp_combination.values).all(axis = 1)])
+                negative_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == hot_encoded.iloc[sample_idx, 1:].values).all(axis=1)])
+                negative_weights[sample_idx, label_idx] = positive_samples / (positive_samples + negative_samples)
+    negative_weights_df = pd.DataFrame(negative_weights, columns=LABELS_LIST)
+    negative_weights_df["song_id"] = hot_encoded.song_id
+    negative_weights_df = negative_weights_df[["song_id"] + LABELS_LIST]
+    #negative_weights_df.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/negative_weights.csv",index=False)
+    return negative_weights_df
+
+# Define custom loss
+def custom_loss(layer):
+    # Create a loss function that adds the MSE loss to the mean of all squared activations of a specific layer
+    def loss(y_true, y_pred):
+        return K.mean(K.square(y_pred - y_true) + K.square(layer), axis=-1)
+
+    # Return a function
+    return loss
+
+def weighted_categorical_crossentropy(weights_positive, weights_negative):
+    """
+    A weighted version of keras.objectives.categorical_crossentropy
+
+    Variables:
+        weights: numpy array of shape (C,n) where C is the number of classes and n number of samples
+
+    Usage:
+        weights = np.array([0.5,2,10], [0.3, 1, 5]) # Class one at 0.5, class 2 twice the normal weights, class 3 10x
+        # for the first sample, etc...
+        loss = weighted_categorical_crossentropy(weights)
+        model.compile(loss=loss,optimizer='adam')
+    """
+
+    weights_positive = K.variable(weights_positive)
+    weights_negative = K.variable(weights_negative)
+
+    def loss(y_true, y_pred):
+        # scale predictions so that the class probas of each sample sum to 1
+        y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
+        # clip to prevent NaN's and Inf's
+        y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+        # calc
+        loss = y_true * K.log(y_pred) * weights_positive
+        loss = -K.sum(loss, -1)
+        return loss
+
+    return loss
 
 def main():
     # splitting datasets
