@@ -643,14 +643,6 @@ def negative_labeles_probabilities(hot_encoded):
     #negative_weights_df.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/negative_weights.csv",index=False)
     return negative_weights_df
 
-# Define custom loss
-def custom_loss(layer):
-    # Create a loss function that adds the MSE loss to the mean of all squared activations of a specific layer
-    def loss(y_true, y_pred):
-        return K.mean(K.square(y_pred - y_true) + K.square(layer), axis=-1)
-
-    # Return a function
-    return loss
 
 def weighted_categorical_crossentropy(weights_positive, weights_negative):
     """
@@ -675,8 +667,9 @@ def weighted_categorical_crossentropy(weights_positive, weights_negative):
         # clip to prevent NaN's and Inf's
         y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
         # calc
-        loss = y_true * K.log(y_pred) * weights_positive
-        loss = -K.sum(loss, -1)
+        loss = (-y_true * K.log(y_pred) * weights_positive) - (1.0 - y_true) * (K.log(1.0 - y_pred) * weights_negative)
+        #loss = y_true * K.log(y_pred) * weights_positive
+        loss = K.sum(loss, -1)
         return loss
 
     return loss
@@ -688,6 +681,9 @@ def main():
     # Loading datasets
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
+    positive_weights = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
+    negative_weights = pd.read_csv(os.path.join(negative_weights, "GroundTruth/positive_weights.csv"))
+
 
     # TODO: path
     exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME)
@@ -715,7 +711,8 @@ def main():
 
     optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
-    compile_model(model, optimizer=optimization)
+    loss = weighted_categorical_crossentropy(positive_weights,negative_weights)
+    compile_model(model, loss= loss,  optimizer=optimization)
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
