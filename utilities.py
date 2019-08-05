@@ -193,3 +193,4 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
         results_df = results_df.T
         results_df.to_csv(os.path.join(output_path, "results_report.csv"), float_format="%.2f")
         return results_df.T
+

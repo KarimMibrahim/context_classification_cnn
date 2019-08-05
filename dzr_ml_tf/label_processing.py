@@ -43,7 +43,7 @@ def tf_multilabel_binarize(tf_tsv_string, label_list_tf):
                     label_list_tf,
                  ]
     res = tf.py_func(sklearn_mlb,
-            input_args,
-            (tf.float32),
-            stateful=False),
+        input_args,
+        (tf.float32),
+        stateful=False),
     return res

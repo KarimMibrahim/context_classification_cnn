@@ -2,100 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/dzr_ml_tf/label_processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/dzr_ml_tf/label_processing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/cnn_model.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="410">
-              <caret line="713" column="78" selection-start-line="713" selection-start-column="78" selection-end-line="713" selection-end-column="78" />
-              <folding>
-                <element signature="e#1453#1600#0" />
-                <element signature="e#1721#2482#0" />
-                <element signature="e#2595#3615#0" />
-                <element signature="e#3752#7204#0" />
-                <element signature="e#5126#7045#0" />
-                <element signature="e#7860#10696#0" />
-                <element signature="e#2714#3193#0" />
-                <element signature="e#3229#4177#0" />
-                <element signature="e#4201#7718#0" />
-                <element signature="e#14741#14803#0" />
-                <element signature="e#7939#8063#0" />
-                <element signature="e#8104#8265#0" />
-                <element signature="e#8300#8462#0" />
-                <element signature="e#15627#17604#0" />
-                <element signature="e#17748#19042#0" />
-                <element signature="e#12294#13663#0" />
-                <element signature="e#13813#15113#0" />
-                <element signature="e#15210#17095#0" />
-                <element signature="e#17131#17412#0" />
-                <element signature="e#17456#18458#0" />
-                <element signature="e#26910#27284#0" />
-                <element signature="e#27693#28862#0" />
-                <element signature="e#27192#28024#0" />
-                <element signature="e#25841#26539#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/utilities.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="195" selection-start-line="195" selection-end-line="195" />
-              <folding>
-                <element signature="e#18#36#0" expanded="true" />
-                <element signature="e#196#358#0" />
-                <element signature="e#636#1373#0" />
-                <element signature="e#412#1948#0" />
-                <element signature="e#2473#3659#0" />
-                <element signature="e#4042#10832#0" />
-                <element signature="e#6388#6553#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/scrath.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="945">
-              <caret line="216" column="41" selection-start-line="216" selection-start-column="41" selection-end-line="216" selection-end-column="41" />
-              <folding>
-                <element signature="e#18#27#0" expanded="true" />
-                <element signature="e#1344#1491#0" />
-                <element signature="e#1515#5032#0" />
-                <element signature="e#5132#5194#0" />
-                <element signature="e#5338#6642#0" />
-                <element signature="e#6792#8092#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/autoencoder.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="662">
-              <caret line="237" column="50" selection-start-line="237" selection-start-column="50" selection-end-line="237" selection-end-column="50" />
-              <folding>
-                <element signature="e#0#48#0" expanded="true" />
-                <element signature="e#2295#3442#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -104,61 +20,10 @@
       </list>
     </option>
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>experiment</find>
-      <find>cach</find>
-      <find>Ground</find>
-      <find>arr_</find>
-      <find>cpu</find>
-      <find>label</find>
-      <find>inputlayer</find>
-      <find>Pipeline</find>
-      <find>encoded_imgs</find>
-      <find>seed</find>
-      <find>accuracies_df</find>
-    </findStrings>
-    <replaceStrings>
-      <replace>results_df</replace>
-    </replaceStrings>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/autoencoder.py" />
-        <option value="$PROJECT_DIR$/scrath.py" />
-        <option value="$PROJECT_DIR$/utilities.py" />
-        <option value="$PROJECT_DIR$/cnn_model.py" />
-      </list>
-    </option>
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="y" value="-4" />
-    <option name="width" value="1920" />
-    <option name="height" value="1084" />
-  </component>
-  <component name="ProjectView">
-    <navigator proportions="" version="1">
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="Scope" />
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="context_classification_cnn" type="b2602c69:ProjectViewProjectNode" />
-              <item name="context_classification_cnn" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-    </panes>
-  </component>
+  <component name="ProjectId" id="1OsGlSEoD6lDDoc41vflNP4asIw" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -166,7 +31,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../Figures" />
     <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
     <property name="nodejs_npm_path_reset_for_default_project" value="true" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.project" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -180,7 +45,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.scrath">
+  <component name="RunManager" selected="Python.cnn_model">
     <configuration name="Unnamed" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="context_classification_cnn" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -229,6 +94,9 @@
       <module name="context_classification_cnn" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -270,6 +138,9 @@
       <module name="context_classification_cnn" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -293,8 +164,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.scrath" />
         <item itemvalue="Python.cnn_model" />
+        <item itemvalue="Python.scrath" />
         <item itemvalue="Python.autoencoder" />
       </list>
     </recent_temporary>
@@ -311,154 +182,29 @@
       <updated>1561023087811</updated>
       <workItem from="1561023089145" duration="19469000" />
       <workItem from="1561371280062" duration="57312000" />
-      <workItem from="1562339051232" duration="54493000" />
+      <workItem from="1562339051232" duration="63512000" />
+      <workItem from="1564759066714" duration="15682000" />
     </task>
     <servers />
-  </component>
-  <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="131274000" />
-  </component>
-  <component name="ToolWindowManager">
-    <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
-    <editor active="true" />
-    <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.11259338" />
-      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.32925585" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.39959225" />
-      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
-      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
-      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32925585" />
-      <window_info anchor="bottom" id="Database Changes" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" weight="0.32925585" />
-      <window_info anchor="bottom" id="Terminal" order="11" weight="0.32925585" />
-      <window_info active="true" anchor="bottom" id="Python Console" order="12" visible="true" weight="0.31294596" />
-      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
-      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
-      <window_info anchor="right" id="SciView" order="3" weight="0.33457845" />
-      <window_info anchor="right" id="R Graphics" order="4" />
-      <window_info anchor="right" id="R Packages" order="5" />
-      <window_info anchor="right" id="Database" order="6" />
-      <window_info anchor="right" x="0" y="0" width="430" height="884" id="Documentation" order="7" side_tool="true" weight="0.25773746" />
-    </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/context_classification_cnn$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1561026531083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
-    <SUITE FILE_PATH="coverage/context_classification_cnn$cnn_model.coverage" NAME="cnn_model Coverage Results" MODIFIED="1562937449338" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/venv/lib/python3.5/site-packages/pandas/io/common.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="429" selection-start-line="429" selection-end-line="429" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/lib/python3.5/site-packages/pandas/io/pickle.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="216">
-          <caret line="181" selection-start-line="181" selection-end-line="181" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/lib/python3.5/site-packages/pandas/io/parsers.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="701" selection-start-line="701" selection-end-line="701" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/lib/python3.5/site-packages/pandas/core/indexing.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="215">
-          <caret line="2540" selection-start-line="2540" selection-end-line="2540" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/autoencoder.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="662">
-          <caret line="237" column="50" selection-start-line="237" selection-start-column="50" selection-end-line="237" selection-end-column="50" />
-          <folding>
-            <element signature="e#0#48#0" expanded="true" />
-            <element signature="e#2295#3442#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/scrath.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="945">
-          <caret line="216" column="41" selection-start-line="216" selection-start-column="41" selection-end-line="216" selection-end-column="41" />
-          <folding>
-            <element signature="e#18#27#0" expanded="true" />
-            <element signature="e#1344#1491#0" />
-            <element signature="e#1515#5032#0" />
-            <element signature="e#5132#5194#0" />
-            <element signature="e#5338#6642#0" />
-            <element signature="e#6792#8092#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/utilities.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="195" selection-start-line="195" selection-end-line="195" />
-          <folding>
-            <element signature="e#18#36#0" expanded="true" />
-            <element signature="e#196#358#0" />
-            <element signature="e#636#1373#0" />
-            <element signature="e#412#1948#0" />
-            <element signature="e#2473#3659#0" />
-            <element signature="e#4042#10832#0" />
-            <element signature="e#6388#6553#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cnn_model.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="410">
-          <caret line="713" column="78" selection-start-line="713" selection-start-column="78" selection-end-line="713" selection-end-column="78" />
-          <folding>
-            <element signature="e#1453#1600#0" />
-            <element signature="e#1721#2482#0" />
-            <element signature="e#2595#3615#0" />
-            <element signature="e#3752#7204#0" />
-            <element signature="e#5126#7045#0" />
-            <element signature="e#7860#10696#0" />
-            <element signature="e#2714#3193#0" />
-            <element signature="e#3229#4177#0" />
-            <element signature="e#4201#7718#0" />
-            <element signature="e#14741#14803#0" />
-            <element signature="e#7939#8063#0" />
-            <element signature="e#8104#8265#0" />
-            <element signature="e#8300#8462#0" />
-            <element signature="e#15627#17604#0" />
-            <element signature="e#17748#19042#0" />
-            <element signature="e#12294#13663#0" />
-            <element signature="e#13813#15113#0" />
-            <element signature="e#15210#17095#0" />
-            <element signature="e#17131#17412#0" />
-            <element signature="e#17456#18458#0" />
-            <element signature="e#26910#27284#0" />
-            <element signature="e#27693#28862#0" />
-            <element signature="e#27192#28024#0" />
-            <element signature="e#25841#26539#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/context_classification_cnn$cnn_model.coverage" NAME="cnn_model Coverage Results" MODIFIED="1565019570744" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/context_classification_cnn$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1561026531083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/context_classification_cnn$scrath.coverage" NAME="scrath Coverage Results" MODIFIED="1565008876802" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
   <component name="masterDetails">
     <states>

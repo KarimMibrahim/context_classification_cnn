@@ -381,10 +381,27 @@ def compile_model(model, loss='binary_crossentropy', optimizer='sgd', metrics=['
 
 
 # Dataset pipelines
+def numpy_repeat_id(song_id, label_list):
+    labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/IDs_resolution.csv"))
+    new_id = labels[labels.song_id == song_id].label.values[0]
+    res = [new_id for x in range(len(label_list))]
+    res = np.asarray(res).astype(np.float64)
+    return res
+
+def tf_replace_labels_with_ID(tf_song_id, label_list_tf):
+    input_args = [
+                    tf_song_id,
+                    label_list_tf,
+                 ]
+    res = tf.py_func(numpy_repeat_id,
+        input_args,
+        (tf.float64),
+        stateful=False),
+    return res
+
 def get_training_dataset(path):
     return get_dataset(path, shuffle=True,
                        cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/training/"))
-
 
 def get_validation_dataset(path):
     return get_dataset(path, batch_size=32, shuffle=False,
@@ -431,10 +448,19 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     #    os.makedirs(cache_dir, exist_ok=True)
     #    dataset = dataset.cache(cache_dir)
 
-    # one hot encoding of labels
-    dataset = dataset.map(lambda sample: dict(sample, binary_label=tf_multilabel_binarize(
-        sample.get("label", b""), label_list_tf=tf.constant(LABELS_LIST))[0]), )
+    # one hot encoding of labels [REPLACED NOW BY THE SONG ID TEMPORARILY]
+    #dataset = dataset.map(lambda sample: dict(sample, binary_label=tf_multilabel_binarize(
+    #    sample.get("label", b""), label_list_tf=tf.constant(LABELS_LIST))[0]), )
 
+    # set output shape
+    #dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
+    #    sample["binary_label"], (len(LABELS_LIST)))))
+
+    """
+    TEMPORARY TILL SONG_ID PASSING IS REPLACED BY LABEL PASSING [FOR THE CUSTOM LOSS FUNCTION]
+    """
+    dataset = dataset.map(lambda sample: dict(sample, binary_label= tf_replace_labels_with_ID(
+        sample.get("song_id"), label_list_tf=tf.constant(LABELS_LIST))[0]), )
     # set output shape
     dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
         sample["binary_label"], (len(LABELS_LIST)))))
@@ -609,7 +635,6 @@ def plot_loss_acuracy(history, path):
     plt.savefig(os.path.join(path, "model_loss.pdf"), format='pdf')
     # plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
 
-
 def tf_idf(track_count,hot_encoded, number_of_classes = 15):
     class_total_tracks = track_count.sum()
     class_count_per_sample = hot_encoded.iloc[:, 1:].sum(axis=1)
@@ -643,8 +668,7 @@ def negative_labeles_probabilities(hot_encoded):
     #negative_weights_df.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/negative_weights.csv",index=False)
     return negative_weights_df
 
-
-def weighted_categorical_crossentropy(weights_positive, weights_negative):
+def weighted_categorical_crossentropy():
     """
     A weighted version of keras.objectives.categorical_crossentropy
 
@@ -658,21 +682,142 @@ def weighted_categorical_crossentropy(weights_positive, weights_negative):
         model.compile(loss=loss,optimizer='adam')
     """
 
-    weights_positive = K.variable(weights_positive)
-    weights_negative = K.variable(weights_negative)
-
     def loss(y_true, y_pred):
+        weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
+        weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
+        labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/balanced_ground_truth_hot_vector.csv"))
+        sample_label = labels[labels.song_id == y_true[:,0]]
+        sample_label = sample_label.iloc[:,1:].values
+        samples_weights_positive = weights_positive[weights_positive.song_id == y_true[:, 0]]
+        samples_weights_negative = weights_negative[weights_negative.song_id == y_true[:, 0]]
+
+        weights_positive = K.constant(samples_weights_positive,tf.float32)
+        weights_negative = K.constant(samples_weights_negative,tf.float32)
+        labels = K.constant(sample_label,tf.float32)
+
+        print(y_true.get_shape())
         # scale predictions so that the class probas of each sample sum to 1
-        y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
+        #y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
         # clip to prevent NaN's and Inf's
         y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
         # calc
         loss = (-y_true * K.log(y_pred) * weights_positive) - (1.0 - y_true) * (K.log(1.0 - y_pred) * weights_negative)
         #loss = y_true * K.log(y_pred) * weights_positive
-        loss = K.sum(loss, -1)
+        #loss = K.sum(loss, -1)
         return loss
-
     return loss
+
+# Dataset pipelines
+def get_labels_weights_py(y_true):
+    weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
+    weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
+    labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/balanced_ground_truth_hot_vector.csv"))
+    resolution = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/IDs_resolution.csv"))
+    new_ids = np.zeros_like(y_true[:,0],np.int64)
+    for idx, y in enumerate(y_true[:, 0]):
+        new_ids[idx] = int(resolution[resolution.label == int(y)].song_id.values[0])
+    labels = labels[labels.song_id.isin(new_ids)]
+    sample_label = labels.iloc[:, 1:].values
+    weights_positive = weights_positive[weights_positive.song_id.isin(new_ids)]
+    samples_weights_positive = weights_positive.iloc[:,1:].values
+    weights_negative = weights_negative[weights_negative.song_id .isin(new_ids)]
+    samples_weights_negative = weights_negative.iloc[:,1:].values
+    sample_label = sample_label.astype(np.float32)
+    samples_weights_positive = samples_weights_positive.astype(np.float32)
+    samples_weights_negative = samples_weights_negative.astype(np.float32)
+    return sample_label, samples_weights_positive, samples_weights_negative
+
+def tf_get_labels_weights_py(y_true):
+    input_args = [y_true]
+    res = tf.py_func(get_labels_weights_py,
+        input_args,
+        [tf.float32, tf.float32, tf.float32],
+        stateful=False)
+
+    return res
+
+def custom_loss(y_true, y_pred):
+    labels, weights_positive, weights_negative =  tf_get_labels_weights_py(y_true)
+    #weights_positive = K.constant(samples_weights_positive,tf.float32)
+    #weights_negative = K.constant(samples_weights_negative,tf.float32)
+    #labels = K.constant(sample_label,tf.float32)
+
+    # scale predictions so that the class probas of each sample sum to 1
+    #y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
+    # clip to prevent NaN's and Inf's
+    y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    # calc
+    loss = (-labels * K.log(y_pred) * weights_positive) - (1.0 - labels) * (K.log(1.0 - y_pred) * weights_negative)
+    #loss = y_true * K.log(y_pred) * weights_positive
+    #loss = K.sum(loss, -1)
+    return loss
+
+def sigmoid_cross_entropy_with_logits(  # pylint: disable=invalid-name
+    _sentinel=None,
+    labels=None,
+    logits=None,
+    name=None):
+  """Computes sigmoid cross entropy given `logits`.
+  Measures the probability error in discrete classification tasks in which each
+  class is independent and not mutually exclusive.  For instance, one could
+  perform multilabel classification where a picture can contain both an elephant
+  and a dog at the same time.
+  For brevity, let `x = logits`, `z = labels`.  The logistic loss is
+        z * -log(sigmoid(x)) + (1 - z) * -log(1 - sigmoid(x))
+      = z * -log(1 / (1 + exp(-x))) + (1 - z) * -log(exp(-x) / (1 + exp(-x)))
+      = z * log(1 + exp(-x)) + (1 - z) * (-log(exp(-x)) + log(1 + exp(-x)))
+      = z * log(1 + exp(-x)) + (1 - z) * (x + log(1 + exp(-x))
+      = (1 - z) * x + log(1 + exp(-x))
+      = x - x * z + log(1 + exp(-x))
+  For x < 0, to avoid overflow in exp(-x), we reformulate the above
+        x - x * z + log(1 + exp(-x))
+      = log(exp(x)) - x * z + log(1 + exp(-x))
+      = - x * z + log(1 + exp(x))
+  Hence, to ensure stability and avoid overflow, the implementation uses this
+  equivalent formulation
+      max(x, 0) - x * z + log(1 + exp(-abs(x)))
+  `logits` and `labels` must have the same type and shape.
+  Args:
+    _sentinel: Used to prevent positional parameters. Internal, do not use.
+    labels: A `Tensor` of the same type and shape as `logits`.
+    logits: A `Tensor` of type `float32` or `float64`.
+    name: A name for the operation (optional).
+  Returns:
+    A `Tensor` of the same shape as `logits` with the componentwise
+    logistic losses.
+  Raises:
+    ValueError: If `logits` and `labels` do not have the same shape.
+  """
+  # pylint: disable=protected-access
+  nn_ops._ensure_xent_args("sigmoid_cross_entropy_with_logits", _sentinel,
+                           labels, logits)
+  # pylint: enable=protected-access
+
+  with ops.name_scope(name, "logistic_loss", [logits, labels]) as name:
+    logits = ops.convert_to_tensor(logits, name="logits")
+    labels = ops.convert_to_tensor(labels, name="labels")
+    try:
+      labels.get_shape().merge_with(logits.get_shape())
+    except ValueError:
+      raise ValueError("logits and labels must have the same shape (%s vs %s)" %
+                       (logits.get_shape(), labels.get_shape()))
+
+    # The logistic loss formula from above is
+    #   x - x * z + log(1 + exp(-x))
+    # For x < 0, a more numerically stable formula is
+    #   -x * z + log(1 + exp(x))
+    # Note that these two expressions can be combined into the following:
+    #   max(x, 0) - x * z + log(1 + exp(-abs(x)))
+    # To allow computing gradients at zero, we define custom versions of max and
+    # abs functions.
+    zeros = array_ops.zeros_like(logits, dtype=logits.dtype)
+    cond = (logits >= zeros)
+    relu_logits = array_ops.where(cond, logits, zeros)
+    neg_abs_logits = array_ops.where(cond, -logits, logits)
+    return math_ops.add(
+        relu_logits - logits * labels,
+        math_ops.log1p(math_ops.exp(neg_abs_logits)),
+        name=name)
 
 def main():
     # splitting datasets
@@ -682,7 +827,7 @@ def main():
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
     positive_weights = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
-    negative_weights = pd.read_csv(os.path.join(negative_weights, "GroundTruth/positive_weights.csv"))
+    negative_weights = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
 
 
     # TODO: path
@@ -711,8 +856,8 @@ def main():
 
     optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
-    loss = weighted_categorical_crossentropy(positive_weights,negative_weights)
-    compile_model(model, loss= loss,  optimizer=optimization)
+    #loss = weighted_categorical_crossentropy()
+    compile_model(model, loss= custom_loss,  optimizer=optimization)
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
