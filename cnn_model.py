@@ -388,16 +388,17 @@ def numpy_repeat_id(song_id, label_list):
     res = np.asarray(res).astype(np.float64)
     return res
 
-def tf_replace_labels_with_ID(tf_song_id, label_list_tf):
-    input_args = [
-                    tf_song_id,
-                    label_list_tf,
-                 ]
-    res = tf.py_func(numpy_repeat_id,
-        input_args,
-        (tf.float64),
-        stateful=False),
-    return res
+def tf_replace_labels_with_ID(tf_song_id, label_list_tf, device="/cpu:0"):
+    with tf.device(device):
+        input_args = [
+                        tf_song_id,
+                        label_list_tf,
+                     ]
+        res = tf.py_func(numpy_repeat_id,
+            input_args,
+            (tf.float64),
+            stateful=False),
+        return res
 
 def get_training_dataset(path):
     return get_dataset(path, shuffle=True,
@@ -727,14 +728,14 @@ def get_labels_weights_py(y_true):
     samples_weights_negative = samples_weights_negative.astype(np.float32)
     return sample_label, samples_weights_positive, samples_weights_negative
 
-def tf_get_labels_weights_py(y_true):
-    input_args = [y_true]
-    res = tf.py_func(get_labels_weights_py,
-        input_args,
-        [tf.float32, tf.float32, tf.float32],
-        stateful=False)
-
-    return res
+def tf_get_labels_weights_py(y_true,device = "/cpu:0"):
+    with tf.device(device):
+        input_args = [y_true]
+        res = tf.py_func(get_labels_weights_py,
+            input_args,
+            [tf.float32, tf.float32, tf.float32],
+            stateful=False)
+        return res
 
 def custom_loss(y_true, y_pred):
     labels, weights_positive, weights_negative =  tf_get_labels_weights_py(y_true)
