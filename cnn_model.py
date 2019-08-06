@@ -44,6 +44,12 @@ INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
 
+#TEMPORARY VARIABLES TO SPEED UP WEIGHTED LOSS COMPUTATIONS [fix later]
+weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
+weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
+labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/balanced_ground_truth_hot_vector.csv"))
+resolution = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/IDs_resolution.csv"))
+resolution.set_index("label")
 
 def mark_groups_for_samples(df, n_samples, extra_criterion):
     """
@@ -646,6 +652,9 @@ def tf_idf(track_count,hot_encoded, number_of_classes = 15):
     track_idf = np.log(number_of_classes / class_count_per_sample)
     track_tf_idf = track_tf.copy()
     track_tf_idf.iloc[:,1:] = track_tf.iloc[:, 1:].mul(track_idf, axis=0)
+    # Normalize the values
+    track_tf_idf.iloc[:,1:] = track_tf_idf.iloc[:,1:] / track_tf_idf.iloc[:,1:].mean(axis=0)
+    track_tf_idf[track_tf_idf > 0].iloc[:,1:] += 1
     #track_tf_idf.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/positive_weights.csv",index=False)
     return track_tf_idf
 
@@ -710,13 +719,10 @@ def weighted_categorical_crossentropy():
 
 # Dataset pipelines
 def get_labels_weights_py(y_true):
-    weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
-    weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
-    labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/balanced_ground_truth_hot_vector.csv"))
-    resolution = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/IDs_resolution.csv"))
-    new_ids = np.zeros_like(y_true[:,0],np.int64)
-    for idx, y in enumerate(y_true[:, 0]):
-        new_ids[idx] = int(resolution[resolution.label == int(y)].song_id.values[0])
+    #new_ids = np.zeros_like(y_true[:,0],np.int64)
+    #for idx, y in enumerate(y_true[:, 0]):
+    #    new_ids[idx] = int(resolution[resolution.label == y].song_id.values[0])
+    new_ids = resolution.loc[y_true[:, 0]].song_id.values
     labels = labels[labels.song_id.isin(new_ids)]
     sample_label = labels.iloc[:, 1:].values
     weights_positive = weights_positive[weights_positive.song_id.isin(new_ids)]
@@ -748,7 +754,7 @@ def custom_loss(y_true, y_pred):
     # clip to prevent NaN's and Inf's
     y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
     # calc
-    loss = (-labels * K.log(y_pred) * weights_positive) - (1.0 - labels) * (K.log(1.0 - y_pred) * weights_negative)
+    loss = (-labels * K.log(y_pred) * weights_positive) - ((1.0 - labels) * K.log(1.0 - y_pred) * weights_negative)
     #loss = y_true * K.log(y_pred) * weights_positive
     #loss = K.sum(loss, -1)
     return loss
