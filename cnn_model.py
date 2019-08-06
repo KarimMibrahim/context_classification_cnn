@@ -198,10 +198,9 @@ def compile_model(model, loss='binary_crossentropy', optimizer='sgd', metrics=['
 
 # Dataset pipelines
 def numpy_repeat_id(song_id, label_list):
-    labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/IDs_resolution.csv"))
-    new_id = labels[labels.song_id == song_id].label.values[0]
-    res = [new_id for x in range(len(label_list))]
-    res = np.asarray(res).astype(np.float64)
+    new_id = resolution[resolution.song_id == song_id].label.values[0]
+    res = np.repeat(new_id, len(label_list))
+    res = res.astype(np.float32)
     return res
 
 def tf_replace_labels_with_ID(tf_song_id, label_list_tf, device="/cpu:0"):
@@ -212,7 +211,7 @@ def tf_replace_labels_with_ID(tf_song_id, label_list_tf, device="/cpu:0"):
                      ]
         res = tf.py_func(numpy_repeat_id,
             input_args,
-            (tf.float64),
+            (tf.float32),
             stateful=False),
         return res
 
