@@ -30,7 +30,7 @@ def tf_idf(track_count,hot_encoded, number_of_classes = 15):
 def negative_labeles_probabilities(hot_encoded):
     # count the number of times a combination has appeared with the negative label as 1 / the total number of
     # occurances of that combination without the negative label
-    negative_weights = np.ones([len(hot_encoded),len(LABELS_LIST)])
+    negative_weights = np.ones([len(hot_encoded), len(LABELS_LIST)])
     for sample_idx in range(len(hot_encoded)):
         for label_idx in range(len(LABELS_LIST)):
             if hot_encoded.iloc[sample_idx, label_idx+1] == 1:

@@ -14,6 +14,7 @@ import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
 from tensorflow.keras import backend as K
+from tensorflow.python.ops import math_ops
 
 from focal_loss import focal_loss
 
@@ -45,8 +46,8 @@ LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party'
                'sad', 'sleep', 'summer', 'work', 'workout']
 
 #TEMPORARY VARIABLES TO SPEED UP WEIGHTED LOSS COMPUTATIONS [fix later]
-global_weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
-global_weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
+global_weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights_allones.csv"))
+global_weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights_allones.csv"))
 global_labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/balanced_ground_truth_hot_vector.csv"))
 resolution = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/IDs_resolution.csv"))
 resolution.set_index("label")
@@ -457,20 +458,40 @@ def tf_get_labels_weights_py(y_true,device = "/cpu:0"):
             stateful=False)
         return res
 
+def printLoss_py(loss):
+    print(" ")
+    print("here")
+    print(loss)
+    return 0.0
+
+def tf_printLossTensor(loss,device = "/cpu:0"):
+    with tf.device(device):
+        input_args = [loss]
+        res = tf.py_func(printLoss_py,
+            input_args,
+            [tf.float64],
+            stateful=False)
+        return res
+
 def custom_loss(y_true, y_pred):
     labels, weights_positive, weights_negative =  tf_get_labels_weights_py(y_true)
     #weights_positive = K.constant(samples_weights_positive,tf.float32)
     #weights_negative = K.constant(samples_weights_negative,tf.float32)
     #labels = K.constant(sample_label,tf.float32)
-
     # scale predictions so that the class probas of each sample sum to 1
     #y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
     # clip to prevent NaN's and Inf's
     y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
     # calc
-    loss = (-labels * K.log(y_pred) * weights_positive) - ((1.0 - labels) * K.log(1.0 - y_pred) * weights_negative)
-    #loss = y_true * K.log(y_pred) * weights_positive
-    #loss = K.sum(loss, -1)
+    loss = (-labels * math_ops.log(y_pred) * weights_positive) - ((1.0 - labels) * math_ops.log(1.0 - y_pred) * weights_negative)
+    #loss = K.mean(loss)
+
+    # just trying to compare my output with tf cross entropy (I disabled the weights)
+    #logits = - K.log((1/y_pred)-1)
+    #tfLoss = tf.nn.sigmoid_cross_entropy_with_logits(labels = y_true, logits=logits)
+    #x = tf_printLossTensor(loss)
+    #y = tf_printLossTensor(tfLoss)
+    #loss = tfLoss + x + y
     return loss
 
 def sigmoid_cross_entropy_with_logits(  # pylint: disable=invalid-name
