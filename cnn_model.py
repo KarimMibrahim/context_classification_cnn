@@ -35,9 +35,9 @@ SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
-SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
-SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
+#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
 EXPERIMENTNAME = "C4_square"
@@ -479,12 +479,7 @@ def custom_loss(y_true, y_pred):
     y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
     # calc
     loss = (-labels * K.log(y_pred) * weights_positive) - ((1.0 - labels) * K.log(1.0 - y_pred) * weights_negative)
-    #loss = (labels * (-math_ops.log(tf.keras.activations.sigmoid(logits)))) + ((1.0 - labels) * (-math_ops.log(1.0 - tf.keras.activations.sigmoid(logits))))
-    loss = K.mean(loss)
-    # just trying to compare my output with tf cross entropy (I disabled the weights)
-    #x = tf_printLossTensor(loss, "My Loss")
-    #y = tf_printLossTensor(tfLoss , "tf Loss")
-    #loss = tfLoss + x + y
+    loss = K.mean(loss, -1)
     return loss
 
 def originalCrossEntropymetric(y_true, y_pred):
@@ -494,6 +489,20 @@ def originalCrossEntropymetric(y_true, y_pred):
     tfLoss = tf.nn.sigmoid_cross_entropy_with_logits(labels = labels, logits=logits)
     tfLoss = tf.math.reduce_mean(tfLoss)
     return tfLoss
+
+def negative_weighted_loss(y_true, y_pred):
+    labels, weights_positive, weights_negative = tf_get_labels_weights_py(y_true)
+    y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    loss = -((1.0 - labels) * K.log(1.0 - y_pred) * weights_negative)
+    loss = K.mean(loss)
+    return loss
+
+def positive_weighted_loss(y_true, y_pred):
+    labels, weights_positive, weights_negative = tf_get_labels_weights_py(y_true)
+    y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    loss = (-labels * K.log(y_pred) * weights_positive)
+    loss = K.mean(loss)
+    return loss
 
 def sigmoid_cross_entropy_with_logits(  # pylint: disable=invalid-name
     _sentinel=None,
@@ -599,8 +608,9 @@ def main():
 
     optimization = tf.keras.optimizers.Adadelta(lr=0.001)
     model = get_model()
-    #loss = weighted_categorical_crossentropy()
-    compile_model(model, loss= custom_loss,  optimizer=optimization,metrics=['accuracy', originalCrossEntropymetric])
+    loss = custom_loss
+    compile_model(model, loss = loss,  optimizer=optimization,metrics=['accuracy', originalCrossEntropymetric,
+                                                                       negative_weighted_loss, positive_weighted_loss])
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
