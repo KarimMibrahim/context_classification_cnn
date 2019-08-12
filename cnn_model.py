@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from time import strftime, localtime
 import matplotlib.pyplot as plt
+from utilities import create_analysis_report
 
 # Deep Learning
 import tensorflow as tf
@@ -356,6 +357,9 @@ def evaluate_model(model, spectrograms, test_classes, saving_path, evaluation_fi
     print("saving prediction to disk")
     np.savetxt(os.path.join(saving_path, 'predictions.out'), test_pred_prob, delimiter=',')
     np.savetxt(os.path.join(saving_path, 'test_ground_truth_classes.txt'), test_classes, delimiter=',')
+
+    create_analysis_report(test_pred,test_classes,saving_path,LABELS_LIST)
+
     return accuracy, auc_roc, hamming_error
 
 
@@ -606,7 +610,7 @@ def main():
     # Printing the command to run tensorboard [Just to remember]
     print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
 
-    optimization = tf.keras.optimizers.Adadelta(lr=0.001)
+    optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
     loss = custom_loss
     compile_model(model, loss = loss,  optimizer=optimization,metrics=['accuracy', originalCrossEntropymetric,
