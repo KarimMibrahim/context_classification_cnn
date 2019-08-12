@@ -35,9 +35,9 @@ SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
-#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
-#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
+SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
 EXPERIMENTNAME = "C4_square"
@@ -46,8 +46,8 @@ LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party'
                'sad', 'sleep', 'summer', 'work', 'workout']
 
 #TEMPORARY VARIABLES TO SPEED UP WEIGHTED LOSS COMPUTATIONS [fix later]
-global_weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
-global_weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
+global_weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights_allones.csv"))
+global_weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights_allones.csv"))
 global_labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/balanced_ground_truth_hot_vector.csv"))
 resolution = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/IDs_resolution.csv"))
 resolution.set_index("label")
