@@ -36,9 +36,9 @@ SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
-SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
-SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
+#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
 EXPERIMENTNAME = "C4_square_normalized_positive_weight_by_max"
@@ -225,11 +225,9 @@ def get_validation_dataset(path):
     return get_dataset(path, batch_size=32, shuffle=False,
                        random_crop=False, cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/validation/"))
 
-
 def get_test_dataset(path):
     return get_dataset(path, batch_size=50, shuffle=False,
                        infinite_generator=False, cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/test/"))
-
 
 def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
                 infinite_generator=True, random_crop=False, cache_dir=os.path.join(OUTPUT_PATH, "tmp/tf_cache/"),
@@ -267,21 +265,21 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     #    dataset = dataset.cache(cache_dir)
 
     # one hot encoding of labels [REPLACED NOW BY THE SONG ID TEMPORARILY]
-    #dataset = dataset.map(lambda sample: dict(sample, binary_label=tf_multilabel_binarize(
-    #    sample.get("label", b""), label_list_tf=tf.constant(LABELS_LIST))[0]), )
+    dataset = dataset.map(lambda sample: dict(sample, binary_label=tf_multilabel_binarize(
+        sample.get("label", b""), label_list_tf=tf.constant(LABELS_LIST))[0]), )
 
     # set output shape
-    #dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
-    #    sample["binary_label"], (len(LABELS_LIST)))))
+    dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
+        sample["binary_label"], (len(LABELS_LIST)))))
 
     """
     TEMPORARY TILL SONG_ID PASSING IS REPLACED BY LABEL PASSING [FOR THE CUSTOM LOSS FUNCTION]
     """
-    dataset = dataset.map(lambda sample: dict(sample, binary_label= tf_replace_labels_with_ID(
-        sample.get("song_id"), label_list_tf=tf.constant(LABELS_LIST))[0]), )
+    #dataset = dataset.map(lambda sample: dict(sample, binary_label= tf_replace_labels_with_ID(
+    #    sample.get("song_id"), label_list_tf=tf.constant(LABELS_LIST))[0]), )
     # set output shape
-    dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
-        sample["binary_label"], (len(LABELS_LIST)))))
+    #dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
+    #    sample["binary_label"], (len(LABELS_LIST)))))
 
     if infinite_generator:
         # Repeat indefinitly
@@ -362,7 +360,6 @@ def evaluate_model(model, spectrograms, test_classes, saving_path, evaluation_fi
 
     return accuracy, auc_roc, hamming_error
 
-
 def save_model(model, path):
     # serialize model to JSON
     model_json = model.to_json()
@@ -371,7 +368,6 @@ def save_model(model, path):
     # serialize weights to HDF5
     model.save_weights(os.join.path(path, "model.h5"))
     print("Saved model to disk")
-
 
 def plot_loss_acuracy(history, path):
     # Plot training & validation accuracy values
@@ -478,12 +474,12 @@ def tf_printLossTensor(loss,name, device = "/cpu:0"):
         return res
 
 def custom_loss(y_true, y_pred):
-    labels, weights_positive, weights_negative =  tf_get_labels_weights_py(y_true)
+    labels, weights_positive, weights_negative = tf_get_labels_weights_py(y_true)
     # clip to prevent NaN's and Inf's
     y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
     # calc
     loss = (-labels * K.log(y_pred) * weights_positive) - ((1.0 - labels) * K.log(1.0 - y_pred) * weights_negative)
-    loss = K.mean(loss, -1)
+    loss = K.mean(loss)
     return loss
 
 def originalCrossEntropymetric(y_true, y_pred):
@@ -582,9 +578,6 @@ def main():
     # Loading datasets
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
-    positive_weights = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
-    negative_weights = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
-
 
     # TODO: path
     exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME)
@@ -613,8 +606,7 @@ def main():
     optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
     loss = custom_loss
-    compile_model(model, loss = loss,  optimizer=optimization, metrics=['accuracy', originalCrossEntropymetric,
-                                                                       negative_weighted_loss, positive_weighted_loss])
+    compile_model(model, loss = "binary_crossentropy",  optimizer=optimization, metrics=['accuracy'])
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
