@@ -202,7 +202,7 @@ def compile_model(model, loss='binary_crossentropy', optimizer='sgd', metrics=['
 def numpy_repeat_id(song_id, label_list):
     new_id = resolution[resolution.song_id == song_id].label.values[0]
     res = np.repeat(new_id, len(label_list))
-    res = res.astype(np.float32)
+    res = res.astype(np.float64)
     return res
 
 def tf_replace_labels_with_ID(tf_song_id, label_list_tf, device="/cpu:0"):
@@ -213,7 +213,7 @@ def tf_replace_labels_with_ID(tf_song_id, label_list_tf, device="/cpu:0"):
                      ]
         res = tf.py_func(numpy_repeat_id,
             input_args,
-            (tf.float32),
+            (tf.float64),
             stateful=False),
         return res
 
@@ -265,21 +265,23 @@ def get_dataset(input_csv, input_shape=INPUT_SHAPE, batch_size=32, shuffle=True,
     #    dataset = dataset.cache(cache_dir)
 
     # one hot encoding of labels [REPLACED NOW BY THE SONG ID TEMPORARILY]
+    """
     dataset = dataset.map(lambda sample: dict(sample, binary_label=tf_multilabel_binarize(
         sample.get("label", b""), label_list_tf=tf.constant(LABELS_LIST))[0]), )
 
     # set output shape
     dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
         sample["binary_label"], (len(LABELS_LIST)))))
+    """
 
     """
     TEMPORARY TILL SONG_ID PASSING IS REPLACED BY LABEL PASSING [FOR THE CUSTOM LOSS FUNCTION]
     """
-    #dataset = dataset.map(lambda sample: dict(sample, binary_label= tf_replace_labels_with_ID(
-    #    sample.get("song_id"), label_list_tf=tf.constant(LABELS_LIST))[0]), )
+    dataset = dataset.map(lambda sample: dict(sample, binary_label= tf_replace_labels_with_ID(
+        sample.get("song_id"), label_list_tf=tf.constant(LABELS_LIST))[0]), )
     # set output shape
-    #dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
-    #    sample["binary_label"], (len(LABELS_LIST)))))
+    dataset = dataset.map(lambda sample: dict(sample, binary_label=dp.set_tensor_shape(
+        sample["binary_label"], (len(LABELS_LIST)))))
 
     if infinite_generator:
         # Repeat indefinitly
@@ -393,45 +395,6 @@ def plot_loss_acuracy(history, path):
     plt.savefig(os.path.join(path, "model_loss.pdf"), format='pdf')
     # plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
 
-def weighted_categorical_crossentropy():
-    """
-    A weighted version of keras.objectives.categorical_crossentropy
-
-    Variables:
-        weights: numpy array of shape (C,n) where C is the number of classes and n number of samples
-
-    Usage:
-        weights = np.array([0.5,2,10], [0.3, 1, 5]) # Class one at 0.5, class 2 twice the normal weights, class 3 10x
-        # for the first sample, etc...
-        loss = weighted_categorical_crossentropy(weights)
-        model.compile(loss=loss,optimizer='adam')
-    """
-
-    def loss(y_true, y_pred):
-        weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
-        weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
-        labels = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/balanced_ground_truth_hot_vector.csv"))
-        sample_label = labels[labels.song_id == y_true[:,0]]
-        sample_label = sample_label.iloc[:,1:].values
-        samples_weights_positive = weights_positive[weights_positive.song_id == y_true[:, 0]]
-        samples_weights_negative = weights_negative[weights_negative.song_id == y_true[:, 0]]
-
-        weights_positive = K.constant(samples_weights_positive,tf.float32)
-        weights_negative = K.constant(samples_weights_negative,tf.float32)
-        labels = K.constant(sample_label,tf.float32)
-
-        print(y_true.get_shape())
-        # scale predictions so that the class probas of each sample sum to 1
-        #y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
-        # clip to prevent NaN's and Inf's
-        y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
-        # calc
-        loss = (-y_true * K.log(y_pred) * weights_positive) - (1.0 - y_true) * (K.log(1.0 - y_pred) * weights_negative)
-        #loss = y_true * K.log(y_pred) * weights_positive
-        #loss = K.sum(loss, -1)
-        return loss
-    return loss
-
 # Dataset pipelines
 def get_labels_weights_py(y_true):
     #new_ids = np.zeros_like(y_true[:,0],np.int64)
@@ -458,28 +421,21 @@ def tf_get_labels_weights_py(y_true,device = "/cpu:0"):
             stateful=False)
         return res
 
-def printLoss_py(loss, name):
-    print(" ")
-    print("here " + str(name))
-    print(loss)
-    return 0.0
-
-def tf_printLossTensor(loss,name, device = "/cpu:0"):
-    with tf.device(device):
-        input_args = [loss, name]
-        res = tf.py_func(printLoss_py,
-            input_args,
-            [tf.float64],
-            stateful=False)
-        return res
-
 def custom_loss(y_true, y_pred):
     labels, weights_positive, weights_negative = tf_get_labels_weights_py(y_true)
     # clip to prevent NaN's and Inf's
     y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
     # calc
     loss = (-labels * K.log(y_pred) * weights_positive) - ((1.0 - labels) * K.log(1.0 - y_pred) * weights_negative)
-    loss = K.mean(loss)
+    #loss = K.mean(loss)
+    return loss
+
+def custom_loss_no_weights(y_true, y_pred):
+    # clip to prevent NaN's and Inf's
+    y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    # calc
+    loss = (-y_true * K.log(y_pred)) - ((1.0 - y_true) * K.log(1.0 - y_pred))
+    #loss = K.mean(loss)
     return loss
 
 def originalCrossEntropymetric(y_true, y_pred):
@@ -487,7 +443,7 @@ def originalCrossEntropymetric(y_true, y_pred):
     y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
     logits = tf.log(y_pred / (1 - y_pred))
     tfLoss = tf.nn.sigmoid_cross_entropy_with_logits(labels = labels, logits=logits)
-    tfLoss = tf.math.reduce_mean(tfLoss)
+    #tfLoss = tf.math.reduce_mean(tfLoss)
     return tfLoss
 
 def negative_weighted_loss(y_true, y_pred):
@@ -503,6 +459,7 @@ def positive_weighted_loss(y_true, y_pred):
     loss = (-labels * K.log(y_pred) * weights_positive)
     loss = K.mean(loss)
     return loss
+
 
 def sigmoid_cross_entropy_with_logits(  # pylint: disable=invalid-name
     _sentinel=None,
@@ -578,6 +535,9 @@ def main():
     # Loading datasets
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
+    positive_weights = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
+    negative_weights = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
+
 
     # TODO: path
     exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME)
@@ -606,7 +566,7 @@ def main():
     optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
     loss = custom_loss
-    compile_model(model, loss = "binary_crossentropy",  optimizer=optimization, metrics=['accuracy'])
+    compile_model(model, loss = loss,  optimizer=optimization, metrics=[originalCrossEntropymetric,positive_weighted_loss,negative_weighted_loss()])
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
