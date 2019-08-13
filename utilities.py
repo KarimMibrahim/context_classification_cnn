@@ -10,8 +10,13 @@ from sklearn.model_selection import train_test_split
 pd.option_context('display.float_format', '{:0.2f}'.format)
 sn.set(font_scale=2)  # for label size
 
+SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_cnn/"
+SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
+OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
 def tf_idf(track_count,hot_encoded, number_of_classes = 15):
+    #hot_encoded = pd.read_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/balanced_ground_truth_hot_vector.csv")
+    #track_count = pd.read_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/balanced_ground_truth_track_count.csv")
     class_total_tracks = track_count.sum()
     class_count_per_sample = hot_encoded.iloc[:, 1:].sum(axis=1)
     track_tf = track_count.copy()
@@ -22,8 +27,10 @@ def tf_idf(track_count,hot_encoded, number_of_classes = 15):
     track_tf_idf = track_tf.copy()
     track_tf_idf.iloc[:,1:] = track_tf.iloc[:, 1:].mul(track_idf, axis=0)
     # Normalize the values
-    track_tf_idf.iloc[:,1:] = track_tf_idf.iloc[:,1:] / track_tf_idf.iloc[:,1:].max(axis=0)
-    track_tf_idf.iloc[:,1:] += 1 # Note I am adding 1 to the zeros as well, generally not a problem cause they'll be ignored
+    #positive_weights.iloc[:, 1:] = (positive_weights.iloc[:, 1:] - positive_weights.iloc[:, 1:].min(axis=0)) / (
+    #            positive_weights.iloc[:, 1:].max(axis=0) - positive_weights.iloc[:, 1:].min(axis=0))
+    #track_tf_idf.iloc[:,1:] = track_tf_idf.iloc[:,1:] / track_tf_idf.iloc[:,1:].max(axis=0)
+    #track_tf_idf.iloc[:,1:] += 1 # Note I am adding 1 to the zeros as well, generally not a problem cause they'll be ignored
     #track_tf_idf.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/positive_weights.csv",index=False)
     return track_tf_idf
 

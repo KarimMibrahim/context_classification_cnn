@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GroundTruth/positive_weights.csv" beforeDir="false" afterPath="$PROJECT_DIR$/GroundTruth/positive_weights.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/cnn_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -156,8 +158,8 @@
     </configuration>
     <list>
       <item itemvalue="Python.Unnamed" />
-      <item itemvalue="Python.autoencoder" />
       <item itemvalue="Python.cnn_model" />
+      <item itemvalue="Python.autoencoder" />
       <item itemvalue="Python.scrath" />
     </list>
     <recent_temporary>
@@ -182,7 +184,7 @@
       <workItem from="1561371280062" duration="57312000" />
       <workItem from="1562339051232" duration="63512000" />
       <workItem from="1564759066714" duration="32757000" />
-      <workItem from="1565252172258" duration="13378000" />
+      <workItem from="1565252172258" duration="15363000" />
     </task>
     <servers />
   </component>
@@ -203,7 +205,7 @@
     </option>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/context_classification_cnn$cnn_model.coverage" NAME="cnn_model Coverage Results" MODIFIED="1565521449279" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/context_classification_cnn$cnn_model.coverage" NAME="cnn_model Coverage Results" MODIFIED="1565684867141" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/context_classification_cnn$Unnamed.coverage" NAME="Unnamed Coverage Results" MODIFIED="1561026531083" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/context_classification_cnn$scrath.coverage" NAME="scrath Coverage Results" MODIFIED="1565008876802" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>

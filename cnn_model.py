@@ -41,7 +41,7 @@ SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
 
 
-EXPERIMENTNAME = "C4_square"
+EXPERIMENTNAME = "C4_square_normalized_positive_weight_by_max"
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
@@ -602,8 +602,8 @@ def main():
             ModelCheckpoint(os.path.join(exp_dir, experiment_name, "best_eval.h5"),
                             save_best_only=True,
                             monitor="val_loss",
-                            save_weights_only=False),
-            EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='min')
+                            save_weights_only=False)
+            #,EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='min')
         ]
     }
 
@@ -613,7 +613,7 @@ def main():
     optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
     loss = custom_loss
-    compile_model(model, loss = loss,  optimizer=optimization,metrics=['accuracy', originalCrossEntropymetric,
+    compile_model(model, loss = loss,  optimizer=optimization, metrics=['accuracy', originalCrossEntropymetric,
                                                                        negative_weighted_loss, positive_weighted_loss])
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
