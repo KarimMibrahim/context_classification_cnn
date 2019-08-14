@@ -27,11 +27,11 @@ plt.rcParams.update({'font.size': 22})
 
 SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
-OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
+OUTPUT_PATH = "/home/karim/Documents/research/experiments_results/"
 
 #SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
 #SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results"
+#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
 
 
 EXPERIMENTNAME = "C4_square_tf"
@@ -309,7 +309,7 @@ def main():
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        writer = tf.summary.FileWriter([exp_dir], sess.graph)
+        writer = tf.summary.FileWriter(logdir=exp_dir, sess.graph)
         for epoch in range(NUM_EPOCHS):
             batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS, 1]), np.zeros([TRAINING_STEPS, 1])
             val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
