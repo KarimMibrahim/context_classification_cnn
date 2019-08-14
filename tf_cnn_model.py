@@ -337,11 +337,11 @@ def main():
                                                                                             y: val_batch[1], current_keep_prob: 1})
             print("validation Loss : {}".format(np.mean(val_losses)) , "validation accuracy: {}".format(np.mean(val_accuracies)))
 
-    spectrograms, test_classes = load_test_set_raw()
-    test_pred_prob = sess.run(model_output, feed_dict={x_input: spectrograms, y: test_classes, current_keep_prob: 1})
-    accuracy, auc_roc, hamming_error = evaluate_model(test_pred_prob, test_classes,
-                                                      saving_path=exp_dir,
-                                                      evaluation_file_path=os.path.join(exp_dir, "evaluation_results.txt"))
+        spectrograms, test_classes = load_test_set_raw()
+        test_pred_prob = sess.run(model_output, feed_dict={x_input: spectrograms, y: test_classes, current_keep_prob: 1})
+        accuracy, auc_roc, hamming_error = evaluate_model(test_pred_prob, test_classes,
+                                                          saving_path=exp_dir,
+                                                          evaluation_file_path=os.path.join(exp_dir, "evaluation_results.txt"))
     '''
     fit_config = {
 
