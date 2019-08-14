@@ -160,6 +160,37 @@ def load_spectrogram(*args):
         # print("\n Error while computing features for " + str(song_id) + '\n')
         return np.float32(0.0), True
 
+def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
+                      SPECTROGRAM_PATH=SPECTROGRAMS_PATH):
+    # Loading testset groundtruth
+    test_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "test_ground_truth_binarized.csv"))
+    all_ground_truth = pd.read_csv(os.path.join(LOADING_PATH, "balanced_ground_truth_hot_vector.csv"))
+    # all_ground_truth.drop("playlists_count", axis=1, inplace=True);
+    all_ground_truth = all_ground_truth[all_ground_truth.song_id.isin(test_ground_truth.song_id)]
+    all_ground_truth = all_ground_truth.set_index('song_id')
+    all_ground_truth = all_ground_truth.loc[test_ground_truth.song_id]
+    test_classes = all_ground_truth.values
+    test_classes = test_classes.astype(int)
+
+    spectrograms = np.zeros([len(test_ground_truth), 646, 96])
+    songs_ID = np.zeros([len(test_ground_truth), 1])
+    for idx, filename in enumerate(list(test_ground_truth.song_id)):
+        try:
+            spect = np.load(os.path.join(SPECTROGRAM_PATH, str(filename) + '.npz'))['arr_0']
+        except:
+            continue
+        if (spect.shape == (1, 646, 96)):
+            spectrograms[idx] = spect
+            songs_ID[idx] = filename
+
+    # Apply same transformation as trianing [ALWAYS DOUBLE CHECK TRAINING PARAMETERS]
+    C = 100
+    spectrograms = np.log(1 + C * spectrograms)
+
+    spectrograms = np.expand_dims(spectrograms, axis=3)
+    return spectrograms, test_classes
+
+
 def get_weights(shape):
     return tf.Variable(tf.truncated_normal(shape,stddev=0.1))
 
@@ -171,7 +202,7 @@ def conv_2d(x,W,name=""):
     return tf.nn.conv2d(x,W,[1,1,1,1],padding="SAME", name = name)
 
 def max_pooling(x, shape, name = ""):
-    return tf.nn.max_pool2d(x,shape,strides=[1,2,2,1],padding="SAME", name = name)
+    return tf.nn.max_pool(x,shape,strides=[1,2,2,1],padding="SAME", name = name)
 
 def conv_layer_with_reul(input, shape, name =""):
     W = get_weights(shape)
@@ -280,8 +311,9 @@ def main():
         sess.run(tf.global_variables_initializer())
         writer = tf.summary.FileWriter([exp_dir], sess.graph)
         for epoch in range(NUM_EPOCHS):
+            batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS, 1]), np.zeros([TRAINING_STEPS, 1])
+            val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             for batch_counter in range (TRAINING_STEPS):
-                batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS,1]), np.zeros([TRAINING_STEPS,1])
                 if (batch_counter % 20 == 0):
                     print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch+1))
                 batch = sess.run(training_next_element)
@@ -292,7 +324,6 @@ def main():
             print("Loss: {}".format(np.mean(batch_loss)), "accuracy: {}".format(np.mean(batch_accuracy)))
 
             for validation_batch in range(VALIDATION_STEPS):
-                val_accuracies, val_losses = np.zeros([VALIDATION_STEPS,1]), np.zeros([VALIDATION_STEPS,1])
                 val_batch = sess.run(validation_next_element)
                 val_losses[validation_batch], val_accuracies[validation_batch] = sess.run([loss, accuracy],
                                                                                           feed_dict={x_input: val_batch[0],
