@@ -11,7 +11,6 @@ import tensorflow as tf
 
 import dzr_ml_tf.data_pipeline as dp
 from dzr_ml_tf.label_processing import tf_multilabel_binarize
-from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping
 
 from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, roc_auc_score, \
     hamming_loss
@@ -29,9 +28,9 @@ SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results/"
 
-#SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
-#SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
-#OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
+SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
 
 
 EXPERIMENTNAME = "C4_square_tf"
@@ -237,7 +236,7 @@ def get_model(x_input,current_keep_prob):
 
     dropped = tf.nn.dropout(fully1, keep_prob=current_keep_prob)
     logits = full_layer(dropped, 15)
-    output = tf.nn.sigmoid((logits)
+    output = tf.nn.sigmoid(logits)
     return logits, output
 
 def evaluate_model(test_pred_prob, test_classes, saving_path, evaluation_file_path):
@@ -284,7 +283,7 @@ def main():
     y = tf.placeholder(tf.float32, [None, 15], name = "true_labels")
     x_input = tf.placeholder(tf.float32, [None,646,96,1], name="input")
     current_keep_prob = tf.placeholder(tf.float32, name="dropout_rate")
-    logits, model_output = get_model(x_input,current_keep_prob)
+    logits, model_output = get_model(x_input, current_keep_prob)
 
     # Defining loss and metrics
     loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y))
@@ -307,12 +306,14 @@ def main():
     # Training paramaeters
     TRAINING_STEPS = 1053
     VALIDATION_STEPS = 156
-    NUM_EPOCHS = 10
+    NUM_EPOCHS = 100
 
     # Setting up saving directory
     experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
     exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME,experiment_name)
 
+    # Add ops to save and restore all the variables.
+    saver = tf.train.Saver()
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
@@ -321,21 +322,24 @@ def main():
             batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS, 1]), np.zeros([TRAINING_STEPS, 1])
             val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             for batch_counter in range (TRAINING_STEPS):
-                if (batch_counter % 200 == 0):
+                if (batch_counter % 2 == 0):
                     print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch+1))
                 batch = sess.run(training_next_element)
                 batch_loss[batch_counter], batch_accuracy[batch_counter],_ = sess.run([loss, accuracy, train_step],
                                                                                       feed_dict={x_input: batch[0],
                                                                                         y: batch[1], current_keep_prob: 0.3})
                 #print("Loss: {}".format(batch_loss), "accuracy: {}".format(batch_accuracy))
-            print("Loss: {}".format(np.mean(batch_loss)), "accuracy: {}".format(np.mean(batch_accuracy)))
+            print("Loss: {:.4f}".format(np.mean(batch_loss)), "accuracy: {:.4f}".format(np.mean(batch_accuracy)))
 
             for validation_batch in range(VALIDATION_STEPS):
                 val_batch = sess.run(validation_next_element)
                 val_losses[validation_batch], val_accuracies[validation_batch] = sess.run([loss, accuracy],
                                                                                           feed_dict={x_input: val_batch[0],
                                                                                             y: val_batch[1], current_keep_prob: 1})
-            print("validation Loss : {}".format(np.mean(val_losses)) , "validation accuracy: {}".format(np.mean(val_accuracies)))
+            print("validation Loss : {:.4f}".format(np.mean(val_losses)) , "validation accuracy: {:.4f}".format(np.mean(val_accuracies)))
+
+        save_path = saver.save(sess, os.path.join(exp_dir,"model.ckpt"))
+        print("Model saved in path: %s" % save_path)
 
         spectrograms, test_classes = load_test_set_raw()
         test_pred_prob = sess.run(model_output, feed_dict={x_input: spectrograms, y: test_classes, current_keep_prob: 1})
