@@ -236,8 +236,9 @@ def get_model(x_input,current_keep_prob):
     fully1 = tf.nn.sigmoid(full_layer(flattened, 256))
 
     dropped = tf.nn.dropout(fully1, keep_prob=current_keep_prob)
-    fully2 = tf.nn.sigmoid(full_layer(dropped, 15))
-    return fully2
+    logits = full_layer(dropped, 15)
+    output = tf.nn.sigmoid((logits)
+    return logits, output
 
 def evaluate_model(test_pred_prob, test_classes, saving_path, evaluation_file_path):
     """
@@ -283,11 +284,17 @@ def main():
     y = tf.placeholder(tf.float32, [None, 15], name = "true_labels")
     x_input = tf.placeholder(tf.float32, [None,646,96,1], name="input")
     current_keep_prob = tf.placeholder(tf.float32, name="dropout_rate")
-    model_output = get_model(x_input,current_keep_prob)
+    logits, model_output = get_model(x_input,current_keep_prob)
 
     # Defining loss and metrics
-    loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=model_output, labels=y))
-    train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(loss)
+    loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y))
+    '''
+    These following lines are needed for batch normalization to work properly
+    check https://timodenk.com/blog/tensorflow-batch-normalization/
+    '''
+    update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+    with tf.control_dependencies(update_ops):
+        train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(loss)
     correct_prediction = tf.equal(tf.round(model_output) , y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -309,12 +316,12 @@ def main():
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        writer = tf.summary.FileWriter(logdir=exp_dir, sess.graph)
+        writer = tf.summary.FileWriter(logdir=exp_dir, graph= sess.graph)
         for epoch in range(NUM_EPOCHS):
             batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS, 1]), np.zeros([TRAINING_STEPS, 1])
             val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             for batch_counter in range (TRAINING_STEPS):
-                if (batch_counter % 20 == 0):
+                if (batch_counter % 200 == 0):
                     print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch+1))
                 batch = sess.run(training_next_element)
                 batch_loss[batch_counter], batch_accuracy[batch_counter],_ = sess.run([loss, accuracy, train_step],
