@@ -208,6 +208,39 @@ def get_model(x_input,current_keep_prob):
     fully2 = tf.nn.sigmoid(full_layer(dropped, 15))
     return fully2
 
+def evaluate_model(test_pred_prob, test_classes, saving_path, evaluation_file_path):
+    """
+    Evaluates a given model using accuracy, area under curve and hamming loss
+    :param model: model to be evaluated
+    :param spectrograms: the test set spectrograms as an np.array
+    :param test_classes: the ground truth labels
+    :return: accuracy, auc_roc, hamming_error
+    """
+    test_pred = np.round(test_pred_prob)
+    # Accuracy
+    accuracy = 100 * accuracy_score(test_classes, test_pred)
+    print("Exact match accuracy is: " + str(accuracy) + "%")
+    # Area Under the Receiver Operating Characteristic Curve (ROC AUC)
+    auc_roc = roc_auc_score(test_classes, test_pred_prob)
+    print("Macro Area Under the Curve (AUC) is: " + str(auc_roc))
+    auc_roc_micro = roc_auc_score(test_classes, test_pred_prob, average="micro")
+    print("Micro Area Under the Curve (AUC) is: " + str(auc_roc_micro))
+    auc_roc_weighted = roc_auc_score(test_classes, test_pred_prob, average="weighted")
+    print("Weighted Area Under the Curve (AUC) is: " + str(auc_roc_weighted))
+    # Hamming loss is the fraction of labels that are incorrectly predicted.
+    hamming_error = hamming_loss(test_classes, test_pred)
+    print("Hamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
+    with open(evaluation_file_path, "w") as f:
+        f.write("Exact match accuracy is: " + str(accuracy) + "%\n" + "Area Under the Curve (AUC) is: " + str(auc_roc)
+                + "\nMicro AUC is:" + str(auc_roc_micro) + "\nWeighted AUC is:" + str(auc_roc_weighted)
+                + "\nHamming Loss (ratio of incorrect tags) is: " + str(hamming_error))
+    print("saving prediction to disk")
+    np.savetxt(os.path.join(saving_path, 'predictions.out'), test_pred_prob, delimiter=',')
+    np.savetxt(os.path.join(saving_path, 'test_ground_truth_classes.txt'), test_classes, delimiter=',')
+
+    create_analysis_report(test_pred,test_classes,saving_path,LABELS_LIST)
+
+    return accuracy, auc_roc, hamming_error
 
 
 def main():
@@ -215,55 +248,65 @@ def main():
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
 
+    # Setting up model
     y = tf.placeholder(tf.float32, [None, 15], name = "true_labels")
     x_input = tf.placeholder(tf.float32, [None,646,96,1], name="input")
     current_keep_prob = tf.placeholder(tf.float32, name="dropout_rate")
-
     model_output = get_model(x_input,current_keep_prob)
 
+    # Defining loss and metrics
     loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=model_output, labels=y))
     train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(loss)
-
     correct_prediction = tf.equal(tf.round(model_output) , y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+    # Setting up dataset iterator
     training_iterator = training_dataset.make_one_shot_iterator()
     training_next_element = training_iterator.get_next()
-
     validation_iterator = val_dataset.make_one_shot_iterator()
     validation_next_element = validation_iterator.get_next()
 
+    # Training paramaeters
     TRAINING_STEPS = 1053
     VALIDATION_STEPS = 156
+    NUM_EPOCHS = 10
+
+    # Setting up saving directory
+    experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
+    exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME,experiment_name)
+
 
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
-        for epoch in range(10):
-            for batch_counter in range (1):
+        writer = tf.summary.FileWriter([exp_dir], sess.graph)
+        for epoch in range(NUM_EPOCHS):
+            for batch_counter in range (TRAINING_STEPS):
                 batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS,1]), np.zeros([TRAINING_STEPS,1])
                 if (batch_counter % 20 == 0):
                     print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch+1))
                 batch = sess.run(training_next_element)
-                batch_loss[batch_counter], batch_accuracy[batch_counter],_ = sess.run([loss, accuracy, train_step], feed_dict={x_input: batch[0], y: batch[1], current_keep_prob: 0.3})
+                batch_loss[batch_counter], batch_accuracy[batch_counter],_ = sess.run([loss, accuracy, train_step],
+                                                                                      feed_dict={x_input: batch[0],
+                                                                                        y: batch[1], current_keep_prob: 0.3})
                 #print("Loss: {}".format(batch_loss), "accuracy: {}".format(batch_accuracy))
             print("Loss: {}".format(np.mean(batch_loss)), "accuracy: {}".format(np.mean(batch_accuracy)))
 
             for validation_batch in range(VALIDATION_STEPS):
                 val_accuracies, val_losses = np.zeros([VALIDATION_STEPS,1]), np.zeros([VALIDATION_STEPS,1])
                 val_batch = sess.run(validation_next_element)
-                val_losses[validation_batch], val_accuracies[validation_batch] = sess.run([loss,accuracy], feed_dict={x_input: val_batch[0], y: val_batch[1], current_keep_prob: 1})
+                val_losses[validation_batch], val_accuracies[validation_batch] = sess.run([loss, accuracy],
+                                                                                          feed_dict={x_input: val_batch[0],
+                                                                                            y: val_batch[1], current_keep_prob: 1})
             print("validation Loss : {}".format(np.mean(val_losses)) , "validation accuracy: {}".format(np.mean(val_accuracies)))
 
+    spectrograms, test_classes = load_test_set_raw()
+    test_pred_prob = sess.run(model_output, feed_dict={x_input: spectrograms, y: test_classes, current_keep_prob: 1})
+    accuracy, auc_roc, hamming_error = evaluate_model(test_pred_prob, test_classes,
+                                                      saving_path=exp_dir,
+                                                      evaluation_file_path=os.path.join(exp_dir, "evaluation_results.txt"))
     '''
-    # TODO: path
-    exp_dir = os.path.join(OUTPUT_PATH, EXPERIMENTNAME)
-    experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
-
     fit_config = {
-        "steps_per_epoch": 1053,
-        "epochs": 100,
-        "initial_epoch": 0,
-        "validation_steps": 156,
+
         "callbacks": [
             TensorBoard(log_dir=os.path.join(exp_dir, experiment_name)),
             ModelCheckpoint(os.path.join(exp_dir, experiment_name, "last_iter.h5"),
