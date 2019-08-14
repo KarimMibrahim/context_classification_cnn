@@ -566,7 +566,7 @@ def main():
     optimization = tf.keras.optimizers.Adadelta(lr=0.01)
     model = get_model()
     loss = custom_loss
-    compile_model(model, loss = loss,  optimizer=optimization, metrics=[originalCrossEntropymetric,positive_weighted_loss,negative_weighted_loss()])
+    compile_model(model, loss = loss,  optimizer=optimization, metrics=[originalCrossEntropymetric,positive_weighted_loss,negative_weighted_loss])
 
     dp.safe_remove(os.path.join(OUTPUT_PATH, 'tmp/tf_cache/'))
     history = model.fit(training_dataset, validation_data=val_dataset, **fit_config)
