@@ -329,6 +329,20 @@ def plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_
     plt.savefig(os.path.join(path, "model_loss.pdf"), format='pdf')
     # plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
 
+def plot_new_old_loss(epoch_losses_history, new_loss_history, path):
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(10, 10))
+    # Plot training new and old loss values
+    plt.figure(figsize=(10, 10))
+    plt.plot(epoch_losses_history)
+    plt.plot(new_loss_history)
+    plt.title('Model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Origina Cross Entropy', 'Weighted Cross Entropy'], loc='upper left')
+    plt.savefig(os.path.join(path, "loss_comparison.png"))
+    plt.savefig(os.path.join(path, "loss_comparison.pdf"), format='pdf')
+
 
 def custom_loss(y_true, y_pred, positive_weights, negative_weights):
     # clip to prevent NaN's and Inf's
@@ -386,26 +400,29 @@ def main():
     saver = tf.train.Saver()
 
     epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history = [], [], [], []
-
+    my_loss_history = []
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         writer = tf.summary.FileWriter(logdir=exp_dir, graph=sess.graph)
         for epoch in range(NUM_EPOCHS):
             batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS, 1]), np.zeros([TRAINING_STEPS, 1])
+            batch_my_loss = np.zeros([TRAINING_STEPS, 1])
             val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             for batch_counter in range(TRAINING_STEPS):
                 if (batch_counter % 500 == 0):
                     print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch + 1))
                 batch = sess.run(training_next_element)
-                batch_loss[batch_counter], batch_accuracy[batch_counter], batch_my_weights_loss,  _ = sess.run([loss, accuracy, my_weights_loss, train_step],
+                batch_loss[batch_counter], batch_accuracy[batch_counter], batch_my_loss[batch_counter],  _ = sess.run([loss, accuracy, my_weights_loss, train_step],
                                                                                        feed_dict={x_input: batch[0],
                                                                                                   y: batch[1],
                                                                                                   positive_weights: batch[2],
                                                                                                   negative_weights: batch[3],
                                                                                                   current_keep_prob: 0.3})
-                print("Loss: {}".format(batch_loss[batch_counter]), "my_loss: {}".format(batch_my_weights_loss))
-            print("Loss: {:.4f}".format(np.mean(batch_loss)), "accuracy: {:.4f}".format(np.mean(batch_accuracy)))
+            print("Loss: {:.4f}".format(np.mean(batch_loss)), "My_loss: {:.4f}".format(np.mean(batch_my_loss)),
+                  "accuracy: {:.4f}".format(np.mean(batch_accuracy)))
             epoch_losses_history.append(np.mean(batch_loss)); epoch_accurcies_history.append(np.mean(batch_accuracy))
+            my_loss_history.append(np.mean(batch_my_loss))
+
 
             for validation_batch in range(VALIDATION_STEPS):
                 val_batch = sess.run(validation_next_element)
@@ -442,6 +459,8 @@ def main():
 
     # Plot and save losses
     plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history, exp_dir)
+    plot_new_old_loss(epoch_losses_history, my_loss_history, exp_dir)
+
     '''
     fit_config = {
 
