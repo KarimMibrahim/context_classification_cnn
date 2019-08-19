@@ -28,13 +28,13 @@ SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results/"
 
-"""
+
 SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
-"""
 
-EXPERIMENTNAME = "C4_square_tf"
+
+EXPERIMENTNAME = "tf_C4"
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
@@ -448,7 +448,7 @@ def main():
         test_pred_prob = np.zeros_like(test_classes, dtype=float)
         for test_split in range(TEST_NUM_STEPS):
             spectrograms_split = spectrograms[(test_split * split_size):(test_split * split_size) + split_size, :, :]
-            test_pred_prob[(test_split * split_size):(test_split * split_size) + split_size, :] = sess.run([model_output],
+            test_pred_prob[(test_split * split_size):(test_split * split_size) + split_size, :] = sess.run(model_output,
                                                                                                            feed_dict={
                                                                                                                x_input: spectrograms_split,
                                                                                                                current_keep_prob: 1})
