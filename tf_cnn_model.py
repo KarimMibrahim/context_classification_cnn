@@ -269,7 +269,7 @@ def evaluate_model(test_pred_prob, test_classes, saving_path, evaluation_file_pa
     np.savetxt(os.path.join(saving_path, 'predictions.out'), test_pred_prob, delimiter=',')
     np.savetxt(os.path.join(saving_path, 'test_ground_truth_classes.txt'), test_classes, delimiter=',')
 
-    create_analysis_report(test_pred,test_classes,saving_path,LABELS_LIST)
+    create_analysis_report(test_pred, test_classes, saving_path, LABELS_LIST)
 
     return accuracy, auc_roc, hamming_error
 
@@ -322,7 +322,7 @@ def main():
             batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS, 1]), np.zeros([TRAINING_STEPS, 1])
             val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             for batch_counter in range (TRAINING_STEPS):
-                if (batch_counter % 2 == 0):
+                if (batch_counter % 100 == 0):
                     print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch+1))
                 batch = sess.run(training_next_element)
                 batch_loss[batch_counter], batch_accuracy[batch_counter],_ = sess.run([loss, accuracy, train_step],
@@ -341,8 +341,17 @@ def main():
         save_path = saver.save(sess, os.path.join(exp_dir,"model.ckpt"))
         print("Model saved in path: %s" % save_path)
 
+        # Testing the model [I split the testset into smaller splits because of memory error]
         spectrograms, test_classes = load_test_set_raw()
-        test_pred_prob = sess.run(model_output, feed_dict={x_input: spectrograms, y: test_classes, current_keep_prob: 1})
+        TEST_NUM_STEPS = 100
+        split_size = len(test_classes)/TEST_NUM_STEPS
+        test_pred_prob = np.zeros_like(test_classes)
+        for test_split in range(TEST_NUM_STEPS):
+            spectrograms_split = spectrograms[test_split:split_size, :, :]
+            test_classes_split = test_classes[test_split:split_size, :, :]
+            test_pred_prob[test_split:split_size, :] = sess.run(model_output,
+                                      feed_dict={x_input: spectrograms_split, y: test_classes_split, current_keep_prob: 1})
+        #test_pred_prob = sess.run(model_output, feed_dict={x_input: spectrograms, y: test_classes, current_keep_prob: 1})
         accuracy, auc_roc, hamming_error = evaluate_model(test_pred_prob, test_classes,
                                                           saving_path=exp_dir,
                                                           evaluation_file_path=os.path.join(exp_dir, "evaluation_results.txt"))
