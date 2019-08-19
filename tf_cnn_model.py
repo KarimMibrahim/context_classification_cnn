@@ -343,13 +343,13 @@ def main():
 
         # Testing the model [I split the testset into smaller splits because of memory error]
         spectrograms, test_classes = load_test_set_raw()
-        TEST_NUM_STEPS = 100
-        split_size = len(test_classes)/TEST_NUM_STEPS
+        TEST_NUM_STEPS = 283 # number is chosen based on testset size to be dividable [would change based on dataset]
+        split_size = int(len(test_classes)/TEST_NUM_STEPS)
         test_pred_prob = np.zeros_like(test_classes)
         for test_split in range(TEST_NUM_STEPS):
-            spectrograms_split = spectrograms[test_split:split_size, :, :]
-            test_classes_split = test_classes[test_split:split_size, :, :]
-            test_pred_prob[test_split:split_size, :] = sess.run(model_output,
+            spectrograms_split = spectrograms[(test_split*split_size):(test_split*split_size)+split_size, :, :]
+            test_classes_split = test_classes[test_split:test_split+split_size, :]
+            test_pred_prob[test_split:test_split+split_size, :] = sess.run(model_output,
                                       feed_dict={x_input: spectrograms_split, y: test_classes_split, current_keep_prob: 1})
         #test_pred_prob = sess.run(model_output, feed_dict={x_input: spectrograms, y: test_classes, current_keep_prob: 1})
         accuracy, auc_roc, hamming_error = evaluate_model(test_pred_prob, test_classes,
