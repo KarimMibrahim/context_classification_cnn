@@ -29,8 +29,10 @@ def tf_idf(track_count,hot_encoded, number_of_classes = 15):
     track_tf_idf = track_tf.copy()
     track_tf_idf = track_tf.mul(track_idf, axis=0)
     # Normalize the values
-    #positive_weights.iloc[:, 1:] = (positive_weights.iloc[:, 1:] - positive_weights.iloc[:, 1:].min(axis=0)) / (
-    #            positive_weights.iloc[:, 1:].max(axis=0) - positive_weights.iloc[:, 1:].min(axis=0))
+    # Choose between combinations of different normalizations below
+    #track_tf_idf. = (track_tf_idf - track_tf_idf.min(axis=0)) / (track_tf_idf.max(axis=0) - track_tf_idf.min(axis=0)) # between zero and 1
+    # track_tf_idf = (track_tf_idf - track_tf_idf.mean(axis=0)) / track_tf_idf.std(axis=0) # zero mean unit variance
+    # track_tf_idf = track_tf_idf.clip(lower = 0 , upper = 2) # clip to a max of 2 and min of 0
     #track_tf_idf = track_tf_idf / track_tf_idf.max(axis=0)
     #track_tf_idf.iloc[:,1:] += 1 # Note I am adding 1 to the zeros as well, generally not a problem cause they'll be ignored
     #track_tf_idf.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/positive_weights.csv")
