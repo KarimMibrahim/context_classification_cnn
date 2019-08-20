@@ -355,6 +355,7 @@ def custom_loss(y_true, y_pred, positive_weights, negative_weights):
 
 
 def main():
+    print("Current Experiment: " + EXPERIMENTNAME + "\n\n\n")
     # Loading datasets
     training_dataset = get_training_dataset(os.path.join(SOURCE_PATH, "GroundTruth/train_ground_truth.csv"))
     val_dataset = get_validation_dataset(os.path.join(SOURCE_PATH, "GroundTruth/validation_ground_truth.csv"))
