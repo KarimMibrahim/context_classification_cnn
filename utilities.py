@@ -17,21 +17,23 @@ OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 def tf_idf(track_count,hot_encoded, number_of_classes = 15):
     #hot_encoded = pd.read_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/balanced_ground_truth_hot_vector.csv")
     #track_count = pd.read_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/balanced_ground_truth_track_count.csv")
+    track_count = track_count.set_index("song_id")
+    hot_encoded = hot_encoded.set_index("song_id")
     class_total_tracks = track_count.sum()
-    class_count_per_sample = hot_encoded.iloc[:, 1:].sum(axis=1)
+    class_count_per_sample = hot_encoded.sum(axis=1)
     track_tf = track_count.copy()
     # compute tf (number of track occurances in a context / total number of occurances in this context)
-    track_tf.iloc[:, 1:] = track_count.iloc[:, 1:].div(class_total_tracks, axis=1)
+    track_tf = track_count.div(class_total_tracks, axis=1)
     # compute idf (number of contexts / number of positive context in this class)
     track_idf = np.log(number_of_classes / class_count_per_sample)
     track_tf_idf = track_tf.copy()
-    track_tf_idf.iloc[:,1:] = track_tf.iloc[:, 1:].mul(track_idf, axis=0)
+    track_tf_idf = track_tf.mul(track_idf, axis=0)
     # Normalize the values
     #positive_weights.iloc[:, 1:] = (positive_weights.iloc[:, 1:] - positive_weights.iloc[:, 1:].min(axis=0)) / (
     #            positive_weights.iloc[:, 1:].max(axis=0) - positive_weights.iloc[:, 1:].min(axis=0))
-    #track_tf_idf.iloc[:,1:] = track_tf_idf.iloc[:,1:] / track_tf_idf.iloc[:,1:].max(axis=0)
+    #track_tf_idf = track_tf_idf / track_tf_idf.max(axis=0)
     #track_tf_idf.iloc[:,1:] += 1 # Note I am adding 1 to the zeros as well, generally not a problem cause they'll be ignored
-    #track_tf_idf.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/positive_weights.csv",index=False)
+    #track_tf_idf.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/positive_weights.csv")
     return track_tf_idf
 
 def negative_labeles_probabilities(hot_encoded):
