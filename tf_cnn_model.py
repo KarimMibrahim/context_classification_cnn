@@ -34,12 +34,12 @@ SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
 
 
-EXPERIMENTNAME = "tf_C4"
+EXPERIMENTNAME = "tf_C4_training_on_my_loss_both_weights_positiveUNIT"
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
 
-global_weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights.csv"))
+global_weights_positive = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/positive_weights_MeanOne_unitVar_clip2.csv"))
 global_weights_negative = pd.read_csv(os.path.join(SOURCE_PATH, "GroundTruth/negative_weights.csv"))
 
 
@@ -378,7 +378,7 @@ def main():
     '''
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
-        train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(loss)
+        train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(my_weights_loss)
     correct_prediction = tf.equal(tf.round(model_output), y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -391,7 +391,7 @@ def main():
     # Training paramaeters
     TRAINING_STEPS = 1053
     VALIDATION_STEPS = 156
-    NUM_EPOCHS = 100
+    NUM_EPOCHS = 200
 
     # Setting up saving directory
     experiment_name = strftime("%Y-%m-%d_%H-%M-%S", localtime())
@@ -436,7 +436,7 @@ def main():
                                                                                               current_keep_prob: 1})
             print("validation Loss : {:.4f}".format(np.mean(val_losses)),
                   "validation accuracy: {:.4f}".format(np.mean(val_accuracies)))
-            val_losses_history.append(np.mean(val_losses)); val_accuracies_history.append(np.mean(batch_accuracy))
+            val_losses_history.append(np.mean(val_losses)); val_accuracies_history.append(np.mean(val_accuracies))
 
 
         save_path = saver.save(sess, os.path.join(exp_dir, "model.ckpt"))
