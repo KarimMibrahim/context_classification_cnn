@@ -217,7 +217,7 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
 
 def get_weights(shape):
     w = tf.Variable(tf.truncated_normal(shape, stddev=0.1))
-    variable_summaries(w)
+    #variable_summaries(w)
     return w
 
 
@@ -356,7 +356,7 @@ def plot_new_old_loss(epoch_losses_history, new_loss_history, path):
     plt.savefig(os.path.join(path, "loss_comparison.pdf"), format='pdf')
 
 
-def custom_loss(y_true, y_pred, positive_weights, negative_weights):
+def weighted_loss(y_true, y_pred, positive_weights, negative_weights):
     # clip to prevent NaN's and Inf's
     y_pred = tf.clip_by_value(y_pred, 1e-7, 1-1e-7, name=None)
     #y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
@@ -364,6 +364,25 @@ def custom_loss(y_true, y_pred, positive_weights, negative_weights):
     loss = (-y_true * tf.log(y_pred) * positive_weights) - ((1.0 - y_true) * tf.log(1.0 - y_pred) * negative_weights)
     loss = tf.reduce_mean(loss)
     return loss
+
+def positive_loss(y_true, y_pred, positive_weights):
+    # clip to prevent NaN's and Inf's
+    y_pred = tf.clip_by_value(y_pred, 1e-7, 1-1e-7, name=None)
+    #y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    # calc
+    loss = (-y_true * tf.log(y_pred) * positive_weights)
+    loss = tf.reduce_mean(loss)
+    return loss
+
+def negative_loss(y_true, y_pred, negative_weights):
+    # clip to prevent NaN's and Inf's
+    y_pred = tf.clip_by_value(y_pred, 1e-7, 1-1e-7, name=None)
+    #y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+    # calc
+    loss = -((1.0 - y_true) * tf.log(1.0 - y_pred) * negative_weights)
+    loss = tf.reduce_mean(loss)
+    return loss
+
 
 def variable_summaries(var):
     with tf.name_scope('summaries'):
@@ -393,15 +412,21 @@ def main():
 
     # Defining loss and metrics
     loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y))
-    my_weights_loss = custom_loss(y_true= y, y_pred= model_output,
+    my_weights_loss = weighted_loss(y_true= y, y_pred= model_output,
                                   positive_weights= positive_weights, negative_weights= negative_weights)
+    my_positive_loss = positive_loss(y_true= y, y_pred= model_output, positive_weights= positive_weights)
+    my_negative_loss = negative_loss(y_true= y, y_pred= model_output, negative_weights= negative_weights)
     '''
     These following lines are needed for batch normalization to work properly
     check https://timodenk.com/blog/tensorflow-batch-normalization/
     '''
+    # Learning rate decay
+    global_step = tf.Variable(0, trainable=False)
+    learning_rate = tf.train.exponential_decay(learning_rate=0.1, global_step=global_step, decay_steps=1000,
+                                              decay_rate=0.95,staircase=True)
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
-        train_step = tf.train.AdadeltaOptimizer(learning_rate=0.01).minimize(my_weights_loss)
+        train_step = tf.train.AdadeltaOptimizer(learning_rate).minimize(my_weights_loss)
     correct_prediction = tf.equal(tf.round(model_output), y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -409,6 +434,8 @@ def main():
     tf.summary.scalar('Original cross_entropy', loss)
     tf.summary.scalar('Weighted cross entropy',  my_weights_loss)
     tf.summary.scalar('Accuracy', accuracy)
+    tf.summary.scalar('Weighted positive loss',  my_positive_loss)
+    tf.summary.scalar('Weighted negative loss',  my_negative_loss)
     # Merge all the summaries
     merged = tf.summary.merge_all()
 
