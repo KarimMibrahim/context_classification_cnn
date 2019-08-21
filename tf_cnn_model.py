@@ -249,10 +249,10 @@ def full_layer(input, size):
     return tf.matmul(input, W) + b
 
 
-def get_model(x_input, current_keep_prob):
+def get_model(x_input, current_keep_prob, train_phase):
     # Define model architecture
     # C4_model
-    x_norm = tf.layers.batch_normalization(x_input, training=True)
+    x_norm = tf.layers.batch_normalization(x_input, training=train_phase)
 
     with tf.name_scope('CNN_1'):
         conv1 = conv_layer_with_reul(x_norm, [3, 3, 1, 32], name="conv_1")
@@ -408,7 +408,8 @@ def main():
     positive_weights = tf.placeholder(tf.float32, [None,15], name = "Positive_weights")
     negative_weights = tf.placeholder(tf.float32, [None, 15], name="negative_weights")
     current_keep_prob = tf.placeholder(tf.float32, name="dropout_rate")
-    logits, model_output = get_model(x_input, current_keep_prob)
+    train_phase = tf.placeholder(tf.bool, name="is_training")
+    logits, model_output = get_model(x_input, current_keep_prob, train_phase)
 
     # Defining loss and metrics
     loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=logits, labels=y))
@@ -416,14 +417,15 @@ def main():
                                   positive_weights= positive_weights, negative_weights= negative_weights)
     my_positive_loss = positive_loss(y_true= y, y_pred= model_output, positive_weights= positive_weights)
     my_negative_loss = negative_loss(y_true= y, y_pred= model_output, negative_weights= negative_weights)
-    '''
-    These following lines are needed for batch normalization to work properly
-    check https://timodenk.com/blog/tensorflow-batch-normalization/
-    '''
+
     # Learning rate decay
     global_step = tf.Variable(0, trainable=False)
     learning_rate = tf.train.exponential_decay(learning_rate=0.1, global_step=global_step, decay_steps=1000,
                                               decay_rate=0.95,staircase=True)
+    '''
+    These following lines are needed for batch normalization to work properly
+    check https://timodenk.com/blog/tensorflow-batch-normalization/
+    '''
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
         train_step = tf.train.AdadeltaOptimizer(learning_rate).minimize(my_weights_loss)
@@ -478,7 +480,8 @@ def main():
                                                                                                   y: batch[1],
                                                                                                   positive_weights: batch[2],
                                                                                                   negative_weights: batch[3],
-                                                                                                  current_keep_prob: 0.3})
+                                                                                                  current_keep_prob: 0.3,
+                                                                                                  train_phase: True})
             print("Loss: {:.4f}".format(np.mean(batch_loss)), "My_loss: {:.4f}".format(np.mean(batch_my_loss)),
                   "accuracy: {:.4f}".format(np.mean(batch_accuracy)))
             epoch_losses_history.append(np.mean(batch_loss)); epoch_accurcies_history.append(np.mean(batch_accuracy))
@@ -495,7 +498,8 @@ def main():
                                                                                               y: val_batch[1],
                                                                                               positive_weights: val_batch[2],
                                                                                               negative_weights: val_batch[3],
-                                                                                              current_keep_prob: 1})
+                                                                                              current_keep_prob: 1,
+                                                                                              train_phase: False})
             print("validation Loss : {:.4f}".format(np.mean(val_losses)),
                   "validation accuracy: {:.4f}".format(np.mean(val_accuracies)))
             val_losses_history.append(np.mean(val_losses)); val_accuracies_history.append(np.mean(val_accuracies))
