@@ -224,7 +224,7 @@ def get_weights(shape):
 def bias_variable(shape):
     initial = tf.constant(0.1, shape=shape)
     b = tf.Variable(initial)
-    variable_summaries(b)
+    #variable_summaries(b)
     return b
 
 
@@ -254,23 +254,30 @@ def get_model(x_input, current_keep_prob):
     # C4_model
     x_norm = tf.layers.batch_normalization(x_input, training=True)
 
-    conv1 = conv_layer_with_reul(x_norm, [3, 3, 1, 32], name="conv_1")
-    max1 = max_pooling(conv1, shape=[1, 2, 2, 1], name="max_pool_1")
+    with tf.name_scope('CNN_1'):
+        conv1 = conv_layer_with_reul(x_norm, [3, 3, 1, 32], name="conv_1")
+        max1 = max_pooling(conv1, shape=[1, 2, 2, 1], name="max_pool_1")
 
-    conv2 = conv_layer_with_reul(max1, [3, 3, 32, 64], name="conv_2")
-    max2 = max_pooling(conv2, shape=[1, 2, 2, 1], name="max_pool_2")
+    with tf.name_scope('CNN_2'):
+        conv2 = conv_layer_with_reul(max1, [3, 3, 32, 64], name="conv_2")
+        max2 = max_pooling(conv2, shape=[1, 2, 2, 1], name="max_pool_2")
 
-    conv3 = conv_layer_with_reul(max2, [3, 3, 64, 128], name="conv_3")
-    max3 = max_pooling(conv3, shape=[1, 2, 2, 1], name="max_pool_3")
+    with tf.name_scope('CNN_3'):
+        conv3 = conv_layer_with_reul(max2, [3, 3, 64, 128], name="conv_3")
+        max3 = max_pooling(conv3, shape=[1, 2, 2, 1], name="max_pool_3")
 
-    conv4 = conv_layer_with_reul(max3, [3, 3, 128, 256], name="conv_4")
-    max4 = max_pooling(conv4, shape=[1, 2, 2, 1], name="max_pool_4")
+    with tf.name_scope('CNN_4'):
+        conv4 = conv_layer_with_reul(max3, [3, 3, 128, 256], name="conv_4")
+        max4 = max_pooling(conv4, shape=[1, 2, 2, 1], name="max_pool_4")
 
-    flattened = tf.reshape(max4, [-1, 41 * 6 * 256])
-    fully1 = tf.nn.sigmoid(full_layer(flattened, 256))
+    with tf.name_scope('Fully_connected_1'):
+        flattened = tf.reshape(max4, [-1, 41 * 6 * 256])
+        fully1 = tf.nn.sigmoid(full_layer(flattened, 256))
 
-    dropped = tf.nn.dropout(fully1, keep_prob=current_keep_prob)
-    logits = full_layer(dropped, 15)
+    with tf.name_scope('Fully_connected_2'):
+        dropped = tf.nn.dropout(fully1, keep_prob=current_keep_prob)
+        logits = full_layer(dropped, 15)
+
     output = tf.nn.sigmoid(logits)
     tf.summary.histogram('outputs', output)
     return logits, output
