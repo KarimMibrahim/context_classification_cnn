@@ -216,12 +216,16 @@ def load_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
 
 
 def get_weights(shape):
-    return tf.Variable(tf.truncated_normal(shape, stddev=0.1))
+    w = tf.Variable(tf.truncated_normal(shape, stddev=0.1))
+    variable_summaries(w)
+    return w
 
 
 def bias_variable(shape):
     initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial)
+    b = tf.Variable(initial)
+    variable_summaries(b)
+    return b
 
 
 def conv_2d(x, W, name=""):
@@ -268,6 +272,7 @@ def get_model(x_input, current_keep_prob):
     dropped = tf.nn.dropout(fully1, keep_prob=current_keep_prob)
     logits = full_layer(dropped, 15)
     output = tf.nn.sigmoid(logits)
+    tf.summary.histogram('outputs', output)
     return logits, output
 
 
@@ -353,6 +358,17 @@ def custom_loss(y_true, y_pred, positive_weights, negative_weights):
     loss = tf.reduce_mean(loss)
     return loss
 
+def variable_summaries(var):
+    with tf.name_scope('summaries'):
+        mean = tf.reduce_mean(var)
+        tf.summary.scalar('mean', mean)
+    with tf.name_scope('stddev'):
+        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+        tf.summary.scalar('stddev', stddev)
+        tf.summary.scalar('max', tf.reduce_max(var))
+        tf.summary.scalar('min', tf.reduce_min(var))
+        tf.summary.histogram('histogram', var)
+
 
 def main():
     print("Current Experiment: " + EXPERIMENTNAME + "\n\n\n")
@@ -382,6 +398,13 @@ def main():
     correct_prediction = tf.equal(tf.round(model_output), y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
+    # Adding tensorboard summaries
+    tf.summary.scalar('Original cross_entropy', loss)
+    tf.summary.scalar('Weighted cross entropy',  my_weights_loss)
+    tf.summary.scalar('Accuracy', accuracy)
+    # Merge all the summaries
+    merged = tf.summary.merge_all()
+
     # Setting up dataset iterator
     training_iterator = training_dataset.make_one_shot_iterator()
     training_next_element = training_iterator.get_next()
@@ -401,19 +424,22 @@ def main():
     saver = tf.train.Saver()
 
     epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history = [], [], [], []
-    my_loss_history = []
+    my_loss_history, my_loss_val_history = [], []
     with tf.Session() as sess:
+        # Write summaries to LOG_DIR -- used by TensorBoard
+        train_writer = tf.summary.FileWriter(exp_dir + '/tensorboard/train', graph=tf.get_default_graph())
+        test_writer = tf.summary.FileWriter(exp_dir + '/tensorboard/test', graph=tf.get_default_graph())
+        print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + exp_dir)
         sess.run(tf.global_variables_initializer())
-        writer = tf.summary.FileWriter(logdir=exp_dir, graph=sess.graph)
         for epoch in range(NUM_EPOCHS):
             batch_loss, batch_accuracy = np.zeros([TRAINING_STEPS, 1]), np.zeros([TRAINING_STEPS, 1])
-            batch_my_loss = np.zeros([TRAINING_STEPS, 1])
+            batch_my_loss, val_my_loss = np.zeros([TRAINING_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             for batch_counter in range(TRAINING_STEPS):
                 if (batch_counter % 500 == 0):
                     print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch + 1))
                 batch = sess.run(training_next_element)
-                batch_loss[batch_counter], batch_accuracy[batch_counter], batch_my_loss[batch_counter],  _ = sess.run([loss, accuracy, my_weights_loss, train_step],
+                summary, batch_loss[batch_counter], batch_accuracy[batch_counter], batch_my_loss[batch_counter],  _ = sess.run([merged, loss, accuracy, my_weights_loss, train_step],
                                                                                        feed_dict={x_input: batch[0],
                                                                                                   y: batch[1],
                                                                                                   positive_weights: batch[2],
@@ -423,11 +449,13 @@ def main():
                   "accuracy: {:.4f}".format(np.mean(batch_accuracy)))
             epoch_losses_history.append(np.mean(batch_loss)); epoch_accurcies_history.append(np.mean(batch_accuracy))
             my_loss_history.append(np.mean(batch_my_loss))
+            # Add to summaries
+            train_writer.add_summary(summary, epoch)
 
 
             for validation_batch in range(VALIDATION_STEPS):
                 val_batch = sess.run(validation_next_element)
-                val_losses[validation_batch], val_accuracies[validation_batch] = sess.run([loss, accuracy],
+                summary, val_losses[validation_batch], val_accuracies[validation_batch], val_my_loss[validation_batch] = sess.run([merged, loss, accuracy, my_weights_loss],
                                                                                           feed_dict={
                                                                                               x_input: val_batch[0],
                                                                                               y: val_batch[1],
@@ -437,7 +465,8 @@ def main():
             print("validation Loss : {:.4f}".format(np.mean(val_losses)),
                   "validation accuracy: {:.4f}".format(np.mean(val_accuracies)))
             val_losses_history.append(np.mean(val_losses)); val_accuracies_history.append(np.mean(val_accuracies))
-
+            my_loss_val_history.append(np.mean(val_my_loss))
+            test_writer.add_summary(summary, epoch)
 
         save_path = saver.save(sess, os.path.join(exp_dir, "model.ckpt"))
         print("Model saved in path: %s" % save_path)
