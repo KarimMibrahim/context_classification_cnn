@@ -34,7 +34,7 @@ SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
 
 
-EXPERIMENTNAME = "tf_C4_training_on_my_loss_both_weights_positiveUNIT"
+EXPERIMENTNAME = "tf_C4_training_on_my_loss_both_weights_threshold_optimized"
 INPUT_SHAPE = (646, 96, 1)
 LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
                'sad', 'sleep', 'summer', 'work', 'workout']
@@ -526,7 +526,7 @@ def main():
         # Running on validation set to adjust the threshold values
         # Testing the model [I split the testset into smaller splits because of memory error]
         va_spectrograms, val_classes = load_validation_set_raw()
-        VAL_NUM_STEPS = 6  # number is chosen based on testset size to be dividabable [would change based on dataset]
+        VAL_NUM_STEPS = 607  # number is chosen based on testset size to be dividabable [would change based on dataset]
         split_size = int(len(val_classes) / VAL_NUM_STEPS)
         val_pred_prob = np.zeros_like(val_classes, dtype=float)
         for val_split in range(VAL_NUM_STEPS):

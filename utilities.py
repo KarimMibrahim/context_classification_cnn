@@ -14,6 +14,11 @@ SOURCE_PATH = "/home/karim/Documents/research/sourceCode/context_classification_
 SPECTROGRAMS_PATH = "/home/karim/Documents/BalancedDatasetDeezer/mel_specs/mel_specs/"
 OUTPUT_PATH = "/home/karim/Documents/research/experiments_results"
 
+SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
+SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
+OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
+
+
 def tf_idf(track_count,hot_encoded, number_of_classes = 15):
     #hot_encoded = pd.read_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/balanced_ground_truth_hot_vector.csv")
     #track_count = pd.read_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/balanced_ground_truth_track_count.csv")
@@ -432,7 +437,7 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
         f1_array = np.zeros((len(LABELS_LIST), len(thresholds)))
         for idx, label in enumerate(LABELS_LIST):
             f1_array[idx, :] = [
-                f1_score(validation_groundtruth[:, idx], np.round(validation_output[:, idx] - threshold + 0.5))
+                f1_score(validation_groundtruth[:, idx], np.clip(np.round(validation_output[:, idx] - threshold + 0.5), 0, 1))
 
                 for threshold in thresholds]
         threshold_arg = np.argmax(f1_array, axis=1)
@@ -450,7 +455,7 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
         # Applying thresholds optimized per class
         model_output_rounded = np.zeros_like(model_output)
         for idx, label in enumerate(LABELS_LIST):
-            model_output_rounded[:, idx] = np.round(model_output[:, idx] - threshold_per_class[idx] + 0.5)
+            model_output_rounded[:, idx] = np.clip(np.round(model_output[:, idx] - threshold_per_class[idx] + 0.5), 0, 1)
 
         accuracies_perclass = sum(model_output_rounded == groundtruth) / len(groundtruth)
         # Getting the true positive rate perclass
