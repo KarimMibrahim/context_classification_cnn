@@ -487,9 +487,7 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
         plot_false_netgatives_confusion_matrix(model_output_rounded, groundtruth,
                                                os.path.join(output_path, 'false_negative_coocurances[optimized]'),
                                                LABELS_LIST)
-
-        results_df['average'] = results_df.mean(numeric_only=True, axis=1)
-        results_df = results_df.T
-        results_df.to_csv(os.path.join(output_path, "results_report.csv"), float_format="%.2f")
-        return results_df.T
+    results_df['average'] = results_df.mean(numeric_only=True, axis=1)
+    results_df.T.to_csv(os.path.join(output_path, "results_report.csv"), float_format="%.2f")
+    return results_df
 

@@ -536,7 +536,7 @@ def main():
                                                                                                                x_input: spectrograms_split,
                                                                                                                current_keep_prob: 1,
                                                                                                                train_phase: False})
-        create_analysis_report(np.round(test_pred_prob), test_classes, exp_dir, LABELS_LIST, val_pred_prob, val_classes)
+        results = create_analysis_report(np.round(test_pred_prob), test_classes, exp_dir, LABELS_LIST, val_pred_prob, val_classes)
 
     # Plot and save losses
     plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history, exp_dir)
