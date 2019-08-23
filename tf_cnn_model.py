@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from time import strftime, localtime
 import matplotlib.pyplot as plt
-from utilities import create_analysis_report
+from utilities import create_analysis_report, load_validation_set_raw
 
 # Deep Learning
 import tensorflow as tf
@@ -312,9 +312,6 @@ def evaluate_model(test_pred_prob, test_classes, saving_path, evaluation_file_pa
     print("saving prediction to disk")
     np.savetxt(os.path.join(saving_path, 'predictions.out'), test_pred_prob, delimiter=',')
     np.savetxt(os.path.join(saving_path, 'test_ground_truth_classes.txt'), test_classes, delimiter=',')
-
-    create_analysis_report(test_pred, test_classes, saving_path, LABELS_LIST)
-
     return accuracy, auc_roc, hamming_error
 
 def plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history, path):
@@ -519,11 +516,27 @@ def main():
             test_pred_prob[(test_split * split_size):(test_split * split_size) + split_size, :] = sess.run(model_output,
                                                                                                            feed_dict={
                                                                                                                x_input: spectrograms_split,
-                                                                                                               current_keep_prob: 1})
+                                                                                                               current_keep_prob: 1,
+                                                                                                               train_phase: False})
         accuracy, auc_roc, hamming_error = evaluate_model(test_pred_prob, test_classes,
                                                           saving_path=exp_dir,
                                                           evaluation_file_path=os.path.join(exp_dir,
                                                                                             "evaluation_results.txt"))
+
+        # Running on validation set to adjust the threshold values
+        # Testing the model [I split the testset into smaller splits because of memory error]
+        va_spectrograms, val_classes = load_validation_set_raw()
+        VAL_NUM_STEPS = 6  # number is chosen based on testset size to be dividabable [would change based on dataset]
+        split_size = int(len(val_classes) / VAL_NUM_STEPS)
+        val_pred_prob = np.zeros_like(val_classes, dtype=float)
+        for val_split in range(VAL_NUM_STEPS):
+            spectrograms_split = va_spectrograms[(val_split * split_size):(val_split * split_size) + split_size, :, :]
+            val_pred_prob[(val_split * split_size):(val_split * split_size) + split_size, :] = sess.run(model_output,
+                                                                                                           feed_dict={
+                                                                                                               x_input: spectrograms_split,
+                                                                                                               current_keep_prob: 1,
+                                                                                                               train_phase: False})
+        create_analysis_report(np.round(test_pred_prob), test_classes, exp_dir, LABELS_LIST, val_pred_prob, val_classes)
 
     # Plot and save losses
     plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history, exp_dir)
