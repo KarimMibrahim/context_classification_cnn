@@ -438,7 +438,6 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
         for idx, label in enumerate(LABELS_LIST):
             f1_array[idx, :] = [
                 f1_score(validation_groundtruth[:, idx], np.clip(np.round(validation_output[:, idx] - threshold + 0.5), 0, 1))
-
                 for threshold in thresholds]
         threshold_arg = np.argmax(f1_array, axis=1)
         threshold_per_class = thresholds[threshold_arg]
