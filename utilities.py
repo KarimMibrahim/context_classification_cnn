@@ -56,9 +56,15 @@ def negative_labeles_probabilities(hot_encoded):
             else:
                 temp_combination = hot_encoded.iloc[sample_idx,1:].copy()
                 temp_combination[label_idx] = 1
-                positive_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == temp_combination.values).all(axis = 1)])
-                negative_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == hot_encoded.iloc[sample_idx, 1:].values).all(axis=1)])
-                negative_weights[sample_idx, label_idx] = positive_samples / (positive_samples + negative_samples)
+                # Compare only columns that are equal to 1, and count number of matches
+                # adding one to skip the song_id column, which exists in the hot_encoded dataframe
+                positive_columns = np.where(temp_combination.values == 1)[0] + 1
+                positive_samples = len(hot_encoded[(hot_encoded.iloc[:, positive_columns].values == 1).all(axis = 1)])
+                # Count occurances with the negative sample
+                temp_combination[label_idx] = 0
+                positive_columns = np.where(temp_combination.values == 1)[0] + 1
+                total_occurances_of_pattern = len(hot_encoded[(hot_encoded.iloc[:, positive_columns].values == 1).all(axis = 1)])
+                negative_weights[sample_idx, label_idx] = positive_samples / total_occurances_of_pattern
     negative_weights_df = pd.DataFrame(negative_weights, columns=LABELS_LIST)
     negative_weights_df["song_id"] = hot_encoded.song_id
     negative_weights_df = negative_weights_df[["song_id"] + LABELS_LIST]
@@ -394,7 +400,7 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
     accuracies_perclass = sum(model_output_rounded == groundtruth) / len(groundtruth)
     results_df = pd.DataFrame(columns=LABELS_LIST)
     results_df.index.astype(str, copy=False)
-    percentage_of_positives_perclass = sum(model_output_rounded) / len(groundtruth)
+    percentage_of_positives_perclass = sum(groundtruth) / len(groundtruth)
     results_df.loc[0] = percentage_of_positives_perclass
     results_df.loc[1] = accuracies_perclass
     results_df.index = ['Ratio of positive samples', 'Model accuracy']
@@ -433,6 +439,8 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
 
     # Adjusting threshold based on validation set
     if (validation_groundtruth is not None and validation_output is not None):
+        np.savetxt(os.path.join(output_path, 'validation_predictions.out'), validation_output, delimiter=',')
+        np.savetxt(os.path.join(output_path, 'valid_ground_truth_classes.txt'), validation_groundtruth, delimiter=',')
         thresholds = np.arange(0, 1, 0.01)
         f1_array = np.zeros((len(LABELS_LIST), len(thresholds)))
         for idx, label in enumerate(LABELS_LIST):
