@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Taxonomy Building on our dataset.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Taxonomy Building on our dataset.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tf_cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tf_cnn_model.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities.py" afterDir="false" />
     </list>
@@ -209,7 +210,7 @@
       <workItem from="1564759066714" duration="32757000" />
       <workItem from="1565252172258" duration="15363000" />
       <workItem from="1565685526202" duration="66983000" />
-      <workItem from="1566829790505" duration="5979000" />
+      <workItem from="1566829790505" duration="9997000" />
     </task>
     <servers />
   </component>

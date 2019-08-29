@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sn
 from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, f1_score, cohen_kappa_score
 from sklearn.model_selection import train_test_split
+from sklearn.utils import check_random_state
 
 pd.option_context('display.float_format', '{:0.2f}'.format)
 sn.set(font_scale=2)  # for label size
@@ -18,6 +19,8 @@ SOURCE_PATH = "/srv/workspace/research/context_classification_cnn/"
 SPECTROGRAMS_PATH = "/srv/workspace/research/balanceddata/mel_specs/"
 OUTPUT_PATH = "/srv/workspace/research/balanceddata/experiments_results/"
 
+LABELS_LIST = ['car', 'chill', 'club', 'dance', 'gym', 'happy', 'night', 'party', 'relax', 'running',
+               'sad', 'sleep', 'summer', 'work', 'workout']
 
 def tf_idf(track_count,hot_encoded, number_of_classes = 15):
     #hot_encoded = pd.read_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/balanced_ground_truth_hot_vector.csv")
@@ -56,6 +59,26 @@ def negative_labeles_probabilities(hot_encoded):
             else:
                 temp_combination = hot_encoded.iloc[sample_idx,1:].copy()
                 temp_combination[label_idx] = 1
+                positive_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == temp_combination.values).all(axis = 1)])
+                negative_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == hot_encoded.iloc[sample_idx, 1:].values).all(axis=1)])
+                negative_weights[sample_idx, label_idx] = positive_samples / (positive_samples + negative_samples)
+    negative_weights_df = pd.DataFrame(negative_weights, columns=LABELS_LIST)
+    negative_weights_df["song_id"] = hot_encoded.song_id
+    negative_weights_df = negative_weights_df[["song_id"] + LABELS_LIST]
+    #negative_weights_df.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/negative_weights.csv",index=False)
+    return negative_weights_df
+
+def negative_labeles_probabilities_ignoring_zeros(hot_encoded):
+    # count the number of times a combination has appeared with the negative label as 1 / the total number of
+    # occurances of that combination without the negative label
+    negative_weights = np.ones([len(hot_encoded), len(LABELS_LIST)])
+    for sample_idx in range(len(hot_encoded)):
+        for label_idx in range(len(LABELS_LIST)):
+            if hot_encoded.iloc[sample_idx, label_idx+1] == 1:
+                negative_weights[sample_idx, label_idx] = 1
+            else:
+                temp_combination = hot_encoded.iloc[sample_idx,1:].copy()
+                temp_combination[label_idx] = 1
                 # Compare only columns that are equal to 1, and count number of matches
                 # adding one to skip the song_id column, which exists in the hot_encoded dataframe
                 positive_columns = np.where(temp_combination.values == 1)[0] + 1
@@ -70,7 +93,6 @@ def negative_labeles_probabilities(hot_encoded):
     negative_weights_df = negative_weights_df[["song_id"] + LABELS_LIST]
     #negative_weights_df.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/negative_weights.csv",index=False)
     return negative_weights_df
-
 
 def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
                           SPECTROGRAM_PATH="/home/karim/Documents/MelSpectograms_top20/"):
@@ -503,3 +525,51 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
     results_df.T.to_csv(os.path.join(output_path, "results_report.csv"), float_format="%.2f")
     return results_df
 
+
+def plot_conv_weights(weights, input_channel=0):
+    # Assume weights are TensorFlow ops for 4-dim variables
+    # e.g. weights_conv1 or weights_conv2.
+
+    # Retrieve the values of the weight-variables from TensorFlow.
+    # A feed-dict is not necessary because nothing is calculated.
+    w = session.run(weights)
+
+    # Print mean and standard deviation.
+    print("Mean: {0:.5f}, Stdev: {1:.5f}".format(w.mean(), w.std()))
+
+    # Get the lowest and highest values for the weights.
+    # This is used to correct the colour intensity across
+    # the images so they can be compared with each other.
+    w_min = np.min(w)
+    w_max = np.max(w)
+
+    # Number of filters used in the conv. layer.
+    num_filters = w.shape[3]
+
+    # Number of grids to plot.
+    # Rounded-up, square-root of the number of filters.
+    num_grids = math.ceil(math.sqrt(num_filters))
+
+    # Create figure with a grid of sub-plots.
+    fig, axes = plt.subplots(num_grids, num_grids)
+
+    # Plot all the filter-weights.
+    for i, ax in enumerate(axes.flat):
+        # Only plot the valid filter-weights.
+        if i < num_filters:
+            # Get the weights for the i'th filter of the input channel.
+            # The format of this 4-dim tensor is determined by the
+            # TensorFlow API. See Tutorial #02 for more details.
+            img = w[:, :, input_channel, i]
+
+            # Plot image.
+            ax.imshow(img, vmin=w_min, vmax=w_max,
+                      interpolation='nearest', cmap='seismic')
+
+        # Remove ticks from the plot.
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    # Ensure the plot is shown correctly with multiple plots
+    # in a single Notebook cell.
+    plt.show()

@@ -314,6 +314,7 @@ def evaluate_model(test_pred_prob, test_classes, saving_path, evaluation_file_pa
     np.savetxt(os.path.join(saving_path, 'test_ground_truth_classes.txt'), test_classes, delimiter=',')
     return accuracy, auc_roc, hamming_error
 
+
 def plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history, path):
     # Plot training & validation accuracy values
     plt.figure(figsize=(10, 10))
@@ -330,13 +331,14 @@ def plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_
     plt.figure(figsize=(10, 10))
     plt.plot(epoch_losses_history)
     plt.plot(val_losses_history)
-    plt.title('Model loss')
+    plt.title('Model loss (Cross Entropy without weighting)')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Validation'], loc='upper left')
     plt.savefig(os.path.join(path, "model_loss.png"))
     plt.savefig(os.path.join(path, "model_loss.pdf"), format='pdf')
     # plt.savefig(os.path.join(path,label + "_model_loss.eps"), format='eps', dpi=900)
+
 
 def plot_new_old_loss(epoch_losses_history, new_loss_history, path):
     # Plot training & validation accuracy values
@@ -353,6 +355,21 @@ def plot_new_old_loss(epoch_losses_history, new_loss_history, path):
     plt.savefig(os.path.join(path, "loss_comparison.pdf"), format='pdf')
 
 
+def plot_my_loss_validation(my_loss_history, my_loss_val_history, path):
+    # Plot training & validation accuracy values
+    plt.figure(figsize=(10, 10))
+    # Plot training new and old loss values
+    plt.figure(figsize=(10, 10))
+    plt.plot(my_loss_history)
+    plt.plot(my_loss_val_history)
+    plt.title('Weighted model loss')
+    plt.ylabel('Loss')
+    plt.xlabel('Epoch')
+    plt.legend(['Training', 'Validation'], loc='upper left')
+    plt.savefig(os.path.join(path, "weighted_loss_validation.png"))
+    plt.savefig(os.path.join(path, "weighted_loss_validation.pdf"), format='pdf')
+
+
 def weighted_loss(y_true, y_pred, positive_weights, negative_weights):
     # clip to prevent NaN's and Inf's
     y_pred = tf.clip_by_value(y_pred, 1e-7, 1-1e-7, name=None)
@@ -362,6 +379,7 @@ def weighted_loss(y_true, y_pred, positive_weights, negative_weights):
     loss = tf.reduce_mean(loss)
     return loss
 
+
 def positive_loss(y_true, y_pred, positive_weights):
     # clip to prevent NaN's and Inf's
     y_pred = tf.clip_by_value(y_pred, 1e-7, 1-1e-7, name=None)
@@ -370,6 +388,7 @@ def positive_loss(y_true, y_pred, positive_weights):
     loss = (-y_true * tf.log(y_pred) * positive_weights)
     loss = tf.reduce_mean(loss)
     return loss
+
 
 def negative_loss(y_true, y_pred, negative_weights):
     # clip to prevent NaN's and Inf's
@@ -444,6 +463,14 @@ def main():
     validation_iterator = val_dataset.make_one_shot_iterator()
     validation_next_element = validation_iterator.get_next()
 
+    ## Setting up early stopping parameters
+    # Best validation accuracy seen so far.
+    best_validation_loss = 10e6  # Just some large number before storing the first validation loss
+    # Iteration-number for last improvement to validation accuracy.
+    last_improvement = 0
+    # Stop optimization if no improvement found in this many iterations.
+    min_epochs_for_early_stop = 10
+
     # Training paramaeters
     TRAINING_STEPS = 1053
     VALIDATION_STEPS = 156
@@ -503,9 +530,31 @@ def main():
             my_loss_val_history.append(np.mean(val_my_loss))
             test_writer.add_summary(summary, epoch)
 
-        save_path = saver.save(sess, os.path.join(exp_dir, "model.ckpt"))
-        print("Model saved in path: %s" % save_path)
 
+            # If validation loss is an improvement over best-known.
+            if np.mean(val_losses) < best_validation_loss:
+                # Update the best-known validation accuracy.
+                best_validation_loss = np.mean(val_losses)
+
+                # Set the iteration for the last improvement to current.
+                last_improvement = epoch
+
+                # Save all variables of the TensorFlow graph to file.
+                save_path = saver.save(sess, os.path.join(exp_dir, "best_validation.ckpt"))
+                #print("Model with best validation saved in path: %s" % save_path)
+
+            # If no improvement found in the required number of iterations.
+            if epoch - last_improvement > min_epochs_for_early_stop:
+                print("No improvement found in a last 10 epochs, stopping optimization.")
+                # Break out from the for-loop.
+                break
+
+        save_path = saver.save(sess, os.path.join(exp_dir, "last_epoch.ckpt"))
+        print("Last iteration model saved in path: %s" % save_path)
+
+        # Loading model with best validation
+        saver.restore(sess, os.path.join(exp_dir, "best_validation.ckpt"))
+        print("Model with best validation restored before testing.")
         # Testing the model [I split the testset into smaller splits because of memory error]
         spectrograms, test_classes = load_test_set_raw()
         TEST_NUM_STEPS = 283  # number is chosen based on testset size to be dividable [would change based on dataset]
@@ -541,32 +590,7 @@ def main():
     # Plot and save losses
     plot_loss_acuracy(epoch_losses_history, epoch_accurcies_history, val_losses_history, val_accuracies_history, exp_dir)
     plot_new_old_loss(epoch_losses_history, my_loss_history, exp_dir)
-
-    '''
-    fit_config = {
-
-        "callbacks": [
-            TensorBoard(log_dir=os.path.join(exp_dir, experiment_name)),
-            ModelCheckpoint(os.path.join(exp_dir, experiment_name, "last_iter.h5"),
-                            save_weights_only=False),
-            ModelCheckpoint(os.path.join(exp_dir, experiment_name, "best_eval.h5"),
-                            save_best_only=True,
-                            monitor="val_loss",
-                            save_weights_only=False)
-            #,EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=1, mode='min')
-        ]
-    }
-
-    # Printing the command to run tensorboard [Just to remember]
-    print("Execute the following in a terminal:\n" + "tensorboard --logdir=" + os.path.join(exp_dir, experiment_name))
-
-    # save model architecture to disk
-    with open(os.path.join(exp_dir, experiment_name, "model_summary.txt"), 'w+') as fh:
-        model.summary(print_fn=lambda x: fh.write(x + '\n'))
-
-    # Load model with best validation results and apply on testset
-    model.load_weights(os.path.join(exp_dir, experiment_name, "best_eval.h5"))
-    '''
+    plot_my_loss_validation(my_loss_history, my_loss_val_history, exp_dir)
 
 
 if __name__ == "__main__":
