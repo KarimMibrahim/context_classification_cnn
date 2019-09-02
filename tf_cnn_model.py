@@ -496,8 +496,6 @@ def main():
             batch_my_loss, val_my_loss = np.zeros([TRAINING_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             val_accuracies, val_losses = np.zeros([VALIDATION_STEPS, 1]), np.zeros([VALIDATION_STEPS, 1])
             for batch_counter in range(TRAINING_STEPS):
-                if (batch_counter % 500 == 0):
-                    print("batch # {}".format(batch_counter), " of Epoch # {}".format(epoch + 1))
                 batch = sess.run(training_next_element)
                 summary, batch_loss[batch_counter], batch_accuracy[batch_counter], batch_my_loss[batch_counter],  _ = sess.run([merged, loss, accuracy, my_weights_loss, train_step],
                                                                                        feed_dict={x_input: batch[0],
@@ -506,7 +504,7 @@ def main():
                                                                                                   negative_weights: batch[3],
                                                                                                   current_keep_prob: 0.3,
                                                                                                   train_phase: True})
-            print("Loss: {:.4f}".format(np.mean(batch_loss)), "My_loss: {:.4f}".format(np.mean(batch_my_loss)),
+            print("Epoch #{}".format(epoch+1), "Loss: {:.4f}".format(np.mean(batch_loss)), "My_loss: {:.4f}".format(np.mean(batch_my_loss)),
                   "accuracy: {:.4f}".format(np.mean(batch_accuracy)))
             epoch_losses_history.append(np.mean(batch_loss)); epoch_accurcies_history.append(np.mean(batch_accuracy))
             my_loss_history.append(np.mean(batch_my_loss))
@@ -532,9 +530,9 @@ def main():
 
 
             # If validation loss is an improvement over best-known.
-            if np.mean(val_losses) < best_validation_loss:
+            if np.mean(val_my_loss) < best_validation_loss:
                 # Update the best-known validation accuracy.
-                best_validation_loss = np.mean(val_losses)
+                best_validation_loss = np.mean(val_my_loss)
 
                 # Set the iteration for the last improvement to current.
                 last_improvement = epoch
