@@ -4,10 +4,7 @@
     <list default="true" id="39f77f51-3b3b-4a88-9fd2-0f4e2b8333e1" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Balanced_dataset_collection.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/Balanced_dataset_collection.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/Dockerfile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/install_miniconda.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/docker/requirements.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tf_cnn_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/tf_cnn_model.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -47,7 +44,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.tf_cnn_model">
+  <component name="RunManager" selected="Python.embeddings_cnn">
     <configuration name="Unnamed" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="context_classification_cnn" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -136,6 +133,25 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="embeddings_cnn" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="context_classification_cnn" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/embeddings_cnn.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="scrath" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="context_classification_cnn" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -186,9 +202,11 @@
       <item itemvalue="Python.autoencoder" />
       <item itemvalue="Python.scrath" />
       <item itemvalue="Python.tf_cnn_model" />
+      <item itemvalue="Python.embeddings_cnn" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.embeddings_cnn" />
         <item itemvalue="Python.tf_cnn_model" />
         <item itemvalue="Python.cnn_model" />
         <item itemvalue="Python.scrath" />
@@ -212,7 +230,7 @@
       <workItem from="1564759066714" duration="32757000" />
       <workItem from="1565252172258" duration="15363000" />
       <workItem from="1565685526202" duration="66983000" />
-      <workItem from="1566829790505" duration="12976000" />
+      <workItem from="1566829790505" duration="26427000" />
     </task>
     <servers />
   </component>
