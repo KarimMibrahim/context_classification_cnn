@@ -437,7 +437,7 @@ def main():
         np.savetxt(os.path.join(exp_dir, 'predicted_embedings.out'), test_embeds, delimiter=',')
         context_embeddings = pd.read_csv(
             os.path.join(SOURCE_PATH, "GroundTruth/context_embeddings.csv"))
-        test_pred_prob = np.matmul(test_embeds,context_embeddings.T)
+        test_pred_prob = np.matmul(test_embeds, context_embeddings.iloc[:,1:].values.T)
         accuracy, auc_roc, hamming_error = evaluate_model(test_pred_prob, test_classes,
                                                           saving_path=exp_dir,
                                                           evaluation_file_path=os.path.join(exp_dir,
