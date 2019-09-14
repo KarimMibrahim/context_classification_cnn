@@ -421,6 +421,7 @@ def create_analysis_report(model_output, groundtruth, output_path, LABELS_LIST, 
     """
     # Round the probabilities at 0.5
     model_output_rounded = np.round(model_output)
+    model_output_rounded = np.clip(model_output_rounded, 0, 1)
     # Create a dataframe where we keep all the evaluations, starting by prediction accuracy
     accuracies_perclass = sum(model_output_rounded == groundtruth) / len(groundtruth)
     results_df = pd.DataFrame(columns=LABELS_LIST)

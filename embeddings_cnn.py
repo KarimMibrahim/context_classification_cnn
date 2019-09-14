@@ -263,6 +263,7 @@ def evaluate_model(test_pred_prob, test_classes, saving_path, evaluation_file_pa
     :return: accuracy, auc_roc, hamming_error
     """
     test_pred = np.round(test_pred_prob)
+    test_pred = np.clip(test_pred, 0, 1)
     # Accuracy
     accuracy = 100 * accuracy_score(test_classes, test_pred)
     print("Exact match accuracy is: " + str(accuracy) + "%")
