@@ -236,7 +236,7 @@ def max_pooling(x, shape, name=""):
     return tf.nn.max_pool(x, shape, strides=[1, 2, 2, 1], padding="SAME", name=name)
 
 
-def conv_layer_with_reul(input, shape, name=""):
+def conv_layer_with_relu(input, shape, name=""):
     W = get_weights(shape)
     b = bias_variable([shape[3]])
     return tf.nn.relu(conv_2d(input, W, name) + b)
@@ -255,31 +255,36 @@ def get_model(x_input, current_keep_prob, train_phase):
     x_norm = tf.layers.batch_normalization(x_input, training=train_phase)
 
     with tf.name_scope('CNN_1'):
-        conv1 = conv_layer_with_reul(x_norm, [3, 3, 1, 32], name="conv_1")
+        conv1 = conv_layer_with_relu(x_norm, [3, 3, 1, 32], name="conv_1")
         max1 = max_pooling(conv1, shape=[1, 2, 2, 1], name="max_pool_1")
 
     with tf.name_scope('CNN_2'):
-        conv2 = conv_layer_with_reul(max1, [3, 3, 32, 64], name="conv_2")
+        conv2 = conv_layer_with_relu(max1, [3, 3, 32, 64], name="conv_2")
         max2 = max_pooling(conv2, shape=[1, 2, 2, 1], name="max_pool_2")
 
     with tf.name_scope('CNN_3'):
-        conv3 = conv_layer_with_reul(max2, [3, 3, 64, 128], name="conv_3")
+        conv3 = conv_layer_with_relu(max2, [3, 3, 64, 128], name="conv_3")
         max3 = max_pooling(conv3, shape=[1, 2, 2, 1], name="max_pool_3")
 
     with tf.name_scope('CNN_4'):
-        conv4 = conv_layer_with_reul(max3, [3, 3, 128, 256], name="conv_4")
+        conv4 = conv_layer_with_relu(max3, [3, 3, 128, 256], name="conv_4")
         max4 = max_pooling(conv4, shape=[1, 2, 2, 1], name="max_pool_4")
-
+    """
     with tf.name_scope('CNN_5'):
-        conv5 = conv_layer_with_reul(max4, [3, 3, 128, 256], name="conv_5")
+        conv5 = conv_layer_with_relu(max4, [3, 3, 256, 256], name="conv_5") 
         max5 = max_pooling(conv5, shape=[1, 2, 2, 1], name="max_pool_5")
 
     with tf.name_scope('CNN_6'):
-        conv6 = conv_layer_with_reul(max5, [3, 3, 128, 256], name="conv_6")
+        conv6 = conv_layer_with_relu(max5, [3, 3, 256, 256], name="conv_6")
         max6 = max_pooling(conv6, shape=[1, 2, 2, 1], name="max_pool_6")
+        
+    with tf.name_scope('Fully_connected_1'):
+        flattened = tf.reshape(max6, [-1, 11 * 2 * 256])
+        fully1 = tf.nn.sigmoid(full_layer(flattened, 256))
+    """
 
     with tf.name_scope('Fully_connected_1'):
-        flattened = tf.reshape(max6, [-1, 41 * 6 * 256])
+        flattened = tf.reshape(max4, [-1, 41 * 6 * 256])
         fully1 = tf.nn.sigmoid(full_layer(flattened, 256))
 
     with tf.name_scope('Fully_connected_2'):
@@ -452,7 +457,7 @@ def main():
     '''
     update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
     with tf.control_dependencies(update_ops):
-        train_step = tf.train.AdadeltaOptimizer(learning_rate).minimize(my_weights_loss)
+        train_step = tf.train.AdadeltaOptimizer(learning_rate).minimize(my_weights_loss,global_step = global_step)
     correct_prediction = tf.equal(tf.round(model_output), y)
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
