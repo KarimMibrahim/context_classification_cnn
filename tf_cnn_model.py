@@ -270,8 +270,16 @@ def get_model(x_input, current_keep_prob, train_phase):
         conv4 = conv_layer_with_reul(max3, [3, 3, 128, 256], name="conv_4")
         max4 = max_pooling(conv4, shape=[1, 2, 2, 1], name="max_pool_4")
 
+    with tf.name_scope('CNN_5'):
+        conv5 = conv_layer_with_reul(max4, [3, 3, 128, 256], name="conv_5")
+        max5 = max_pooling(conv5, shape=[1, 2, 2, 1], name="max_pool_5")
+
+    with tf.name_scope('CNN_6'):
+        conv6 = conv_layer_with_reul(max5, [3, 3, 128, 256], name="conv_6")
+        max6 = max_pooling(conv6, shape=[1, 2, 2, 1], name="max_pool_6")
+
     with tf.name_scope('Fully_connected_1'):
-        flattened = tf.reshape(max4, [-1, 41 * 6 * 256])
+        flattened = tf.reshape(max6, [-1, 41 * 6 * 256])
         fully1 = tf.nn.sigmoid(full_layer(flattened, 256))
 
     with tf.name_scope('Fully_connected_2'):

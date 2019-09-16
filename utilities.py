@@ -97,6 +97,35 @@ def negative_labeles_probabilities_ignoring_zeros(hot_encoded):
     #negative_weights_df.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/negative_weights.csv",index=False)
     return negative_weights_df
 
+def negative_labels_probabilities_pairwise(hot_encoded):
+    # count the number of times a combination has appeared with the negative label as 1 / the total number of
+    # occurances of that combination without the negative label
+    negative_weights = np.ones([len(hot_encoded), len(LABELS_LIST)])
+    for sample_idx in range(len(hot_encoded)):
+        for label_idx in range(len(LABELS_LIST)):
+            if hot_encoded.iloc[sample_idx, label_idx+1] == 1:
+                negative_weights[sample_idx, label_idx] = 0
+            else:
+                for other_labels_index in range(len(LABELS_LIST)):
+                    # Iterate through all other labels for each label_index
+                    # check patterns if the other label == 1 (weight is #times occured as 0 / number of times occured as 0 or 1 for the target label)
+                    if (other_labels_index != label_idx) and (hot_encoded.iloc[sample_idx, other_labels_index+1] == 1):
+                        positive_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [1,1]).all(axis = 1)])
+                        negative_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [0,1]).all(axis = 1)])
+                        weight = negative_occurances / (negative_occurances + positive_occurances)
+                    # Check the patterns if the other labels == 0
+                    if (other_labels_index != label_idx) and (hot_encoded.iloc[sample_idx, other_labels_index+1] == 0):
+                        positive_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [1,0]).all(axis = 1)])
+                        negative_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [0,0]).all(axis = 1)])
+                        weight = negative_occurances / (negative_occurances + positive_occurances)
+                    negative_weights[sample_idx, label_idx] += weight
+                negative_weights[sample_idx, label_idx] /= (len(LABELS_LIST) - 1)
+    negative_weights_df = pd.DataFrame(negative_weights, columns=LABELS_LIST)
+    negative_weights_df["song_id"] = hot_encoded.song_id
+    negative_weights_df = negative_weights_df[["song_id"] + LABELS_LIST]
+    #negative_weights_df.to_csv("/home/karim/Documents/BalancedDatasetDeezer/GroundTruth/negative_weights_paris.csv",index=False)
+    return negative_weights_df
+
 def load_old_test_set_raw(LOADING_PATH=os.path.join(SOURCE_PATH, "GroundTruth/"),
                           SPECTROGRAM_PATH="/home/karim/Documents/MelSpectograms_top20/"):
     # Loading testset groundtruth
