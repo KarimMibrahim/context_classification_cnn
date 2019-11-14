@@ -54,17 +54,17 @@ def tf_idf(track_count,hot_encoded, number_of_classes = 15):
 def negative_labeles_probabilities(hot_encoded):
     # count the number of times a combination has appeared with the negative label as 1 / the total number of
     # occurances of that combination without the negative label
-    negative_weights = np.ones([len(hot_encoded), len(LABELS_LIST)])
+    negative_weights = np.zeros([len(hot_encoded), len(LABELS_LIST)])
     for sample_idx in range(len(hot_encoded)):
         for label_idx in range(len(LABELS_LIST)):
             if hot_encoded.iloc[sample_idx, label_idx+1] == 1:
-                negative_weights[sample_idx, label_idx] = 1
+                negative_weights[sample_idx, label_idx] = 0
             else:
                 temp_combination = hot_encoded.iloc[sample_idx,1:].copy()
                 temp_combination[label_idx] = 1
                 positive_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == temp_combination.values).all(axis = 1)])
                 negative_samples = len(hot_encoded[(hot_encoded.iloc[:, 1:].values == hot_encoded.iloc[sample_idx, 1:].values).all(axis=1)])
-                negative_weights[sample_idx, label_idx] = positive_samples / (positive_samples + negative_samples)
+                negative_weights[sample_idx, label_idx] = negative_samples / (positive_samples + negative_samples)
     negative_weights_df = pd.DataFrame(negative_weights, columns=LABELS_LIST)
     negative_weights_df["song_id"] = hot_encoded.song_id
     negative_weights_df = negative_weights_df[["song_id"] + LABELS_LIST]
@@ -74,11 +74,11 @@ def negative_labeles_probabilities(hot_encoded):
 def negative_labeles_probabilities_ignoring_zeros(hot_encoded):
     # count the number of times a combination has appeared with the negative label as 1 / the total number of
     # occurances of that combination without the negative label
-    negative_weights = np.ones([len(hot_encoded), len(LABELS_LIST)])
+    negative_weights = np.zeros([len(hot_encoded), len(LABELS_LIST)])
     for sample_idx in range(len(hot_encoded)):
         for label_idx in range(len(LABELS_LIST)):
             if hot_encoded.iloc[sample_idx, label_idx+1] == 1:
-                negative_weights[sample_idx, label_idx] = 1
+                negative_weights[sample_idx, label_idx] = 0
             else:
                 temp_combination = hot_encoded.iloc[sample_idx,1:].copy()
                 temp_combination[label_idx] = 1
@@ -90,7 +90,7 @@ def negative_labeles_probabilities_ignoring_zeros(hot_encoded):
                 temp_combination[label_idx] = 0
                 positive_columns = np.where(temp_combination.values == 1)[0] + 1
                 total_occurances_of_pattern = len(hot_encoded[(hot_encoded.iloc[:, positive_columns].values == 1).all(axis = 1)])
-                negative_weights[sample_idx, label_idx] = positive_samples / total_occurances_of_pattern
+                negative_weights[sample_idx, label_idx] = (total_occurances_of_pattern - positive_samples) / total_occurances_of_pattern
     negative_weights_df = pd.DataFrame(negative_weights, columns=LABELS_LIST)
     negative_weights_df["song_id"] = hot_encoded.song_id
     negative_weights_df = negative_weights_df[["song_id"] + LABELS_LIST]
@@ -109,16 +109,17 @@ def negative_labels_probabilities_pairwise(hot_encoded):
                 for other_labels_index in range(len(LABELS_LIST)):
                     # Iterate through all other labels for each label_index
                     # check patterns if the other label == 1 (weight is #times occured as 0 / number of times occured as 0 or 1 for the target label)
-                    if (other_labels_index != label_idx) and (hot_encoded.iloc[sample_idx, other_labels_index+1] == 1):
-                        positive_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [1,1]).all(axis = 1)])
-                        negative_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [0,1]).all(axis = 1)])
-                        weight = negative_occurances / (negative_occurances + positive_occurances)
+                    if (other_labels_index != label_idx):
+                        if (hot_encoded.iloc[sample_idx, other_labels_index+1] == 1):
+                            positive_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [1,1]).all(axis = 1)])
+                            negative_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [0,1]).all(axis = 1)])
+                            weight = negative_occurances / (negative_occurances + positive_occurances)
                     # Check the patterns if the other labels == 0
-                    if (other_labels_index != label_idx) and (hot_encoded.iloc[sample_idx, other_labels_index+1] == 0):
-                        positive_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [1,0]).all(axis = 1)])
-                        negative_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [0,0]).all(axis = 1)])
-                        weight = negative_occurances / (negative_occurances + positive_occurances)
-                    negative_weights[sample_idx, label_idx] += weight
+                        if (hot_encoded.iloc[sample_idx, other_labels_index+1] == 0):
+                            positive_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [1,0]).all(axis = 1)])
+                            negative_occurances = len(hot_encoded[(hot_encoded.iloc[:, [label_idx+1,other_labels_index+1]].values == [0,0]).all(axis = 1)])
+                            weight = negative_occurances / (negative_occurances + positive_occurances)
+                        negative_weights[sample_idx, label_idx] += weight
                 negative_weights[sample_idx, label_idx] /= (len(LABELS_LIST) - 1)
     negative_weights_df = pd.DataFrame(negative_weights, columns=LABELS_LIST)
     negative_weights_df["song_id"] = hot_encoded.song_id
